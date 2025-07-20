@@ -27,6 +27,99 @@ if(!isset($admin_id)){
     <!-- custom admin css file link  -->
     <link rel="stylesheet" href="css/admin_style.css">
 
+
+    <style>
+    .dashboard {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .dashboard .title {
+        text-align: center;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        color: var #333 (--black);
+        font-size: 4rem;
+    }
+
+    /* Grid layout */
+    .box-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 25px;
+    }
+
+    /* Card box style */
+    .box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+
+    .box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .box i {
+        font-size: 2rem;
+        color: #6c5ce7;
+        margin-bottom: 15px;
+    }
+
+    .box h3 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 10px 0;
+        color: #2f3542;
+    }
+
+    .box p {
+        background-color: #f1f2f6;
+        color: #6c5ce7;
+        font-weight: 600;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 1rem;
+        display: inline-block;
+        margin-top: 10px;
+        transition: background 0.3s;
+    }
+
+    .box p:hover {
+        background-color: #dcdde1;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard .title {
+            font-size: 2.2rem;
+        }
+
+        .box h3 {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .box {
+            padding: 24px 14px;
+        }
+
+        .box h3 {
+            font-size: 1.6rem;
+        }
+
+        .box p {
+            font-size: 0.95rem;
+        }
+    }
+    </style>
 </head>
 
 <body>
@@ -52,7 +145,7 @@ if(!isset($admin_id)){
                };
             };
          ?>
-                <h3>VNĐ <?php echo $total_pendings; ?></h3>
+                <h3><?php echo number_format($total_pendings, 0, ',', '.'); ?> VNĐ</h3>
                 <p>Tổng tiền đang xử lý</p>
             </div>
 
@@ -67,7 +160,7 @@ if(!isset($admin_id)){
                };
             };
          ?>
-                <h3>VNĐ <?php echo $total_completed; ?>/-</h3>
+                <h3><?php echo number_format($total_completed, 0, ',', '.'); ?> VNĐ</h3>
                 <p>Thanh toán thành công</p>
             </div>
 

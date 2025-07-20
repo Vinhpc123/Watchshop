@@ -22,19 +22,19 @@ if(isset($_POST['add_product'])){
    $select_product_name = mysqli_query($conn, "SELECT name FROM `products` WHERE name = '$name'") or die('query failed');
 
    if(mysqli_num_rows($select_product_name) > 0){
-      $message[] = 'product name already added';
+      $message[] = '';
    }else{
       $add_product_query = mysqli_query($conn, "INSERT INTO `products`(name, price, image) VALUES('$name', '$price', '$image')") or die('query failed');
 
       if($add_product_query){
          if($image_size > 2000000){
-            $message[] = 'image size is too large';
+            $message[] = 'Hình ảnh có kích cỡ quá lớn! Xin hãy thử lại';
          }else{
             move_uploaded_file($image_tmp_name, $image_folder);
-            $message[] = 'product added successfully!';
+            $message[] = 'Sản phẩm đã được thêm!';
          }
       }else{
-         $message[] = 'product could not be added!';
+         $message[] = 'Sản phẩm chưa được thêm!';
       }
    }
 }
@@ -64,7 +64,7 @@ if(isset($_POST['update_product'])){
 
    if(!empty($update_image)){
       if($update_image_size > 2000000){
-         $message[] = 'image file size is too large';
+         $message[] = 'Hình ảnh có kích cỡ quá lớn! Xin hãy thử lại';
       }else{
          mysqli_query($conn, "UPDATE `products` SET image = '$update_image' WHERE id = '$update_p_id'") or die('query failed');
          move_uploaded_file($update_image_tmp_name, $update_folder);
@@ -92,10 +92,20 @@ if(isset($_POST['update_product'])){
 
     <!-- custom admin css file link  -->
     <link rel="stylesheet" href="css/admin_style.css">
+
+
     <style>
-    .show-products .box-container .box img {
-        height: 25rem;
-        width: 25rem;
+    /* ấn nút tăng giảm phần giá */
+    /* Ẩn trên Chrome, Safari, Edge */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Ẩn trên Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
     }
     </style>
 
@@ -130,14 +140,14 @@ if(isset($_POST['update_product'])){
         <div class="box-container">
 
             <?php
-         $select_products = mysqli_query($conn, "SELECT * FROM `products`") or die('query failed');
-         if(mysqli_num_rows($select_products) > 0){
-            while($fetch_products = mysqli_fetch_assoc($select_products)){
-      ?>
+               $select_products = mysqli_query($conn, "SELECT * FROM `products`") or die('query failed');
+               if(mysqli_num_rows($select_products) > 0){
+                  while($fetch_products = mysqli_fetch_assoc($select_products)){
+            ?>
             <div class="box">
                 <img src="uploaded_img/<?php echo $fetch_products['image']; ?>" alt="">
                 <div class="name"><?php echo $fetch_products['name']; ?></div>
-                <div class="price">VNĐ <?php echo $fetch_products['price']; ?>/-</div>
+                <div class="price"><?php echo number_format($fetch_products['price'], 0, ',', '.'); ?> VNĐ</div>
                 <a href="admin_products.php?update=<?php echo $fetch_products['id']; ?>" class="option-btn">Cập nhật</a>
                 <a href="admin_products.php?delete=<?php echo $fetch_products['id']; ?>" class="delete-btn"
                     onclick="return confirm('Bạn có muốn xóa sản phẩm này?');">Xóa</a>

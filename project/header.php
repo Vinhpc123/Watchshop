@@ -54,11 +54,17 @@ if (isset($message)) {
                 </a>
             </div>
 
+            <?php if (isset($_SESSION['user_name']) && isset($_SESSION['user_email'])): ?>
             <div class="user-box">
                 <p>Username : <span><?php echo $_SESSION['user_name']; ?></span></p>
                 <p>Email : <span><?php echo $_SESSION['user_email']; ?></span></p>
                 <a href="logout.php" class="delete-btn">Đăng xuất</a>
             </div>
+            <?php else: ?>
+            <div class="user-box">
+                <p style="color: red;">Vui lòng <a href="login.php">đăng nhập</a> để sử dụng dịch vụ!</p>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
