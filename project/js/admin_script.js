@@ -16,7 +16,29 @@ window.onscroll = () =>{
    accountBox.classList.remove('active');
 }
 
-document.querySelector('#close-update').onclick = () =>{
-   document.querySelector('.edit-product-form').style.display = 'none';
-   window.location.href = 'admin_products.php';
+// Nếu tồn tại form chỉnh sửa thì hiện form
+const editForm = document.querySelector('.edit-product-form');
+if (editForm) {
+   editForm.style.display = 'flex';
 }
+
+// Nút "Hủy" sẽ ẩn form và quay về trang chính
+const closeBtn = document.querySelector('#close-update');
+if (closeBtn) {
+   closeBtn.onclick = (e) => {
+      e.preventDefault();
+      editForm.style.display = 'none';
+      window.location.href = 'admin_products.php';
+   }
+}
+
+//Ngay khi chọn ảnh mới → ảnh phía dưới sẽ cập nhật ngay
+function previewImage(event) {
+    const img = document.getElementById('preview');
+    if (event.target.files.length > 0) {
+        img.src = URL.createObjectURL(event.target.files[0]);
+    }
+}
+
+
+

@@ -34,99 +34,97 @@ if (isset($_GET['delete'])) {
     <link rel="stylesheet" href="css/admin_style.css">
     <style>
     .table-container {
+        width: 95%;
+        max-width: 1200px;
+        margin: auto;
         overflow-x: auto;
-        padding: 20px;
+        background: #fff;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
     }
 
     .messages-table {
         width: 100%;
-        min-width: 800px;
-        /* Đảm bảo bảng không quá nhỏ */
         border-collapse: collapse;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        overflow: hidden;
-        table-layout: fixed;
-    }
-
-    .messages-table thead {
-        background-color: #6c3aad;
-        color: white;
+        font-size: 1.5rem;
+        text-align: center;
     }
 
     .messages-table th,
     .messages-table td {
-        padding: 12px 16px;
-        text-align: left;
+        padding: 14px 12px;
         border-bottom: 1px solid #ddd;
-        font-size: 1.6rem;
+        border: 1px solid #ccc;
     }
 
-    .messages-table th:nth-child(1),
-    .messages-table td:nth-child(1) {
-        width: 8%;
-        /* User ID */
+    .messages-table th {
+        background-color: #f0f0f0;
+        color: #000;
+        font-weight: 600;
     }
 
-    .messages-table th:nth-child(2),
-    .messages-table td:nth-child(2) {
-        width: 15%;
-        /* Tên */
-    }
 
-    .messages-table th:nth-child(3),
-    .messages-table td:nth-child(3) {
-        width: 15%;
-        /* SĐT */
-    }
-
-    .messages-table th:nth-child(4),
-    .messages-table td:nth-child(4) {
-        width: 20%;
-        /* Email */
-    }
-
-    .messages-table th:nth-child(5),
-    .messages-table td:nth-child(5) {
-        width: 30%;
-        /* Tin nhắn */
-        word-wrap: break-word;
-        white-space: pre-wrap;
-    }
-
-    .messages-table th:nth-child(6),
-    .messages-table td:nth-child(6) {
-        width: 12%;
-        /* Hành động */
-        text-align: center;
-    }
 
     .delete-btn {
-        background-color: #dc3545;
+        background-color: #e74c3c;
         color: white;
-        padding: 6px 12px;
-        border-radius: 5px;
+        padding: 8px 14px;
+        border-radius: 6px;
         text-decoration: none;
-        font-size: 1.4rem;
         display: inline-block;
-        transition: background-color 0.3s ease;
+        transition: 0.3s ease;
+        margin-bottom: 10px;
     }
 
     .delete-btn:hover {
-        background-color: #c82333;
+        background-color: #c0392b;
+    }
+
+    /* Responsive - Mobile */
+    @media (max-width: 768px) {
+        .messages-table thead {
+            display: none;
+        }
+
+        .messages-table,
+        .messages-table tbody,
+        .messages-table tr,
+        .messages-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .messages-table tr {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .messages-table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+
+        .messages-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            font-weight: bold;
+            color: #555;
+            text-align: left;
+        }
     }
     </style>
 </head>
 
 <body>
-
     <?php include 'admin_header.php'; ?>
-
     <section class="messages">
-
         <h1 class="title"> Tin nhắn </h1>
-
         <div class="table-container">
             <table class="messages-table">
                 <thead>
@@ -165,18 +163,7 @@ if (isset($_GET['delete'])) {
                 </tbody>
             </table>
         </div>
-
-
     </section>
-
-
-
-
-
-
-
-
-
     <!-- custom admin js file link  -->
     <script src="js/admin_script.js"></script>
 

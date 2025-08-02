@@ -142,9 +142,9 @@ if(isset($_GET['delete'])){
                 </thead>
                 <tbody>
                     <?php
-                $select_users = mysqli_query($conn, "SELECT * FROM `users`") or die('query failed');
-                while($fetch_users = mysqli_fetch_assoc($select_users)){
-            ?>
+                        $select_users = mysqli_query($conn, "SELECT * FROM `users`") or die('query failed');
+                        while($fetch_users = mysqli_fetch_assoc($select_users)){
+                    ?>
                     <tr>
                         <td><?php echo $fetch_users['id']; ?></td>
                         <td><?php echo $fetch_users['name']; ?></td>
