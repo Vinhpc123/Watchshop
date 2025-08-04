@@ -13,7 +13,7 @@ if (isset($_POST['order_btn'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $method = mysqli_real_escape_string($conn, $_POST['method']);
     $address = mysqli_real_escape_string($conn, $_POST['flat'] . ', ' . $_POST['street'] . ', ' . $_POST['city'] . ', ' . $_POST['country'] . '' . $_POST['pin_code']);
-    $placed_on = date('d-M-Y');
+    $placed_on = date('Y-m-d');
 
     $cart_total = 0;
     $cart_products[] = '';
