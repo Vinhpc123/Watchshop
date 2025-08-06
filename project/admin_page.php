@@ -307,28 +307,54 @@ if(!isset($admin_id)){
                 <h2>Sản phẩm bán chạy (Top 5)</h2>
                 <ul class="product-list">
                     <?php
-                    // Lấy top 5 sản phẩm bán chạy nhất
-                    $best_sellers_query = "SELECT total_products, 
-                                          SUM(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(total_products, '(', -1), ')', 1) AS UNSIGNED)) as total_sold
-                                          FROM `orders` 
-                                          WHERE payment_status = 'Thành công' 
-                                          GROUP BY SUBSTRING_INDEX(total_products, '(', 1)
-                                          ORDER BY total_sold DESC 
-                                          LIMIT 5";
+                    // Lấy tất cả đơn hàng thành công và xử lý bằng PHP
+                    $orders_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công'";
+                    $orders_result = mysqli_query($conn, $orders_query);
                     
-                    $best_sellers_result = mysqli_query($conn, $best_sellers_query);
-                    $rank = 1;
+                    $product_counts = array();
                     
-                    if(mysqli_num_rows($best_sellers_result) > 0) {
-                        while($product = mysqli_fetch_assoc($best_sellers_result)) {
-                            $product_name = trim(str_replace(',', '', explode('(', $product['total_products'])[0]));
-                            if(!empty($product_name) && $product_name != '') {
-                                echo '<li>';
-                                echo '<span>' . $rank . '. ' . htmlspecialchars($product_name) . '</span>';
-                                echo '<span>' . $product['total_sold'] . ' cái</span>';
-                                echo '</li>';
-                                $rank++;
+                    if(mysqli_num_rows($orders_result) > 0) {
+                        while($order = mysqli_fetch_assoc($orders_result)) {
+                            $total_products = $order['total_products'];
+                            
+                            // Tách các sản phẩm bằng dấu phẩy
+                            $products = explode(',', $total_products);
+                            
+                            foreach($products as $product) {
+                                $product = trim($product);
+                                
+                                // Skip empty strings
+                                if(empty($product)) continue;
+                                
+                                // Extract product name và quantity từ format: "Product Name (quantity)"
+                                if(preg_match('/(.+?)\s*\((\d+)\)/', $product, $matches)) {
+                                    $product_name = trim($matches[1]);
+                                    $quantity = (int)$matches[2];
+                                    
+                                    if(!empty($product_name)) {
+                                        if(isset($product_counts[$product_name])) {
+                                            $product_counts[$product_name] += $quantity;
+                                        } else {
+                                            $product_counts[$product_name] = $quantity;
+                                        }
+                                    }
+                                }
                             }
+                        }
+                    }
+                    
+                    // Sort by quantity descending và lấy top 5
+                    arsort($product_counts);
+                    $top_products = array_slice($product_counts, 0, 5, true);
+                    
+                    $rank = 1;
+                    if(!empty($top_products)) {
+                        foreach($top_products as $product_name => $total_quantity) {
+                            echo '<li>';
+                            echo '<span>' . $rank . '. ' . htmlspecialchars($product_name) . '</span>';
+                            echo '<span>' . $total_quantity . ' cái</span>';
+                            echo '</li>';
+                            $rank++;
                         }
                     } else {
                         echo '<li><span>Chưa có dữ liệu bán hàng</span><span>0 cái</span></li>';
