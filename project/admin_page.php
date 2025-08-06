@@ -90,6 +90,12 @@ if(!isset($admin_id)){
 
     .chart-area {
         flex: 2;
+        min-height: 400px;
+        position: relative;
+    }
+
+    .chart-area canvas {
+        max-height: 350px !important;
     }
 
     .best-sellers {
@@ -237,28 +243,97 @@ if(!isset($admin_id)){
 
         </div>
 
+        <?php
+        // Thiết lập múi giờ Việt Nam
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
+        
+        $revenue_data = array();
+        $hour_labels = array();
+        
+        $today = date('Y-m-d');
+        $current_hour = (int)date('H');
+        
+        for($hour = 0; $hour < 24; $hour++) {
+            $hour_formatted = sprintf('%02d', $hour);
+            
+            
+            $query = "SELECT SUM(total_price) as revenue FROM `orders` 
+                     WHERE DATE(placed_on) = '$today' 
+                     AND HOUR(placed_on) = $hour
+                     AND payment_status = 'Thành công'";
+            $result = mysqli_query($conn, $query);
+            $row = mysqli_fetch_assoc($result);
+            
+            $revenue = $row['revenue'] ? (int)$row['revenue'] : 0;
+            $revenue_data[] = $revenue;
+            
+            if ($hour == $current_hour) {
+                $hour_labels[] = $hour_formatted . ":00 (Hiện tại)";
+            } else {
+                $hour_labels[] = $hour_formatted . ":00";
+            }
+        }
+        
+        // Chuyển mảng PHP thành JSON cho JavaScript
+        $revenue_json = json_encode($revenue_data);
+        $labels_json = json_encode($hour_labels);
+        
+        // Lấy thông tin thời gian hiện tại
+        $current_time = date('H:i:s');
+        $current_date = date('d/m/Y');
+        $day_of_week = date('l');
+        $day_of_week_vn = array(
+            'Monday' => 'Thứ Hai',
+            'Tuesday' => 'Thứ Ba', 
+            'Wednesday' => 'Thứ Tư',
+            'Thursday' => 'Thứ Năm',
+            'Friday' => 'Thứ Sáu',
+            'Saturday' => 'Thứ Bảy',
+            'Sunday' => 'Chủ Nhật'
+        );
+        ?>
 
         <div class="dashboard-analytics">
             <div class="chart-area">
                 <h2>Biểu đồ Doanh Thu</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                    📅 <?php echo $day_of_week_vn[$day_of_week] . ', ' . $current_date; ?> | 
+                    🕐 Giờ hiện tại: <?php echo $current_time; ?> (GMT+7)
+                </p>
                 <canvas id="revenueChart"></canvas>
             </div>
 
             <div class="best-sellers">
-                <h2>Sản phẩm bán chạy</h2>
+                <h2>Sản phẩm bán chạy (Top 5)</h2>
                 <ul class="product-list">
-                    <li>
-                        <span>1. iPhone 15 Pro Max</span>
-                        <span>120 cái</span>
-                    </li>
-                    <li>
-                        <span>2. Laptop Dell XPS</span>
-                        <span>87 cái</span>
-                    </li>
-                    <li>
-                        <span>3. AirPods Pro</span>
-                        <span>62 cái</span>
-                    </li>
+                    <?php
+                    // Lấy top 5 sản phẩm bán chạy nhất
+                    $best_sellers_query = "SELECT total_products, 
+                                          SUM(CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(total_products, '(', -1), ')', 1) AS UNSIGNED)) as total_sold
+                                          FROM `orders` 
+                                          WHERE payment_status = 'Thành công' 
+                                          GROUP BY SUBSTRING_INDEX(total_products, '(', 1)
+                                          ORDER BY total_sold DESC 
+                                          LIMIT 5";
+                    
+                    $best_sellers_result = mysqli_query($conn, $best_sellers_query);
+                    $rank = 1;
+                    
+                    if(mysqli_num_rows($best_sellers_result) > 0) {
+                        while($product = mysqli_fetch_assoc($best_sellers_result)) {
+                            $product_name = trim(str_replace(',', '', explode('(', $product['total_products'])[0]));
+                            if(!empty($product_name) && $product_name != '') {
+                                echo '<li>';
+                                echo '<span>' . $rank . '. ' . htmlspecialchars($product_name) . '</span>';
+                                echo '<span>' . $product['total_sold'] . ' cái</span>';
+                                echo '</li>';
+                                $rank++;
+                            }
+                        }
+                    } else {
+                        echo '<li><span>Chưa có dữ liệu bán hàng</span><span>0 cái</span></li>';
+                    }
+                    ?>
                 </ul>
             </div>
         </div>
@@ -272,37 +347,80 @@ if(!isset($admin_id)){
 
 
 
-    <!-- code minh họa -->
+    <!-- code cải tiến với múi giờ Việt Nam -->
     <script>
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    
+    // Sử dụng dữ liệu thực từ PHP
+    const revenueData = <?php echo $revenue_json; ?>;
+    const hourLabels = <?php echo $labels_json; ?>;
+    const currentHour = <?php echo $current_hour; ?>;
+    
+    // Tạo màu cho các điểm - làm nổi bật giờ hiện tại
+    const pointColors = hourLabels.map((label, index) => {
+        return index === currentHour ? '#ff6b6b' : '#3b82f6';
+    });
+    
+    const pointBorderColors = hourLabels.map((label, index) => {
+        return index === currentHour ? '#ffffff' : '#ffffff';
+    });
+    
+    const pointRadius = hourLabels.map((label, index) => {
+        return index === currentHour ? 8 : 4;
+    });
+    
     new Chart(revenueCtx, {
         type: 'line',
         data: {
-            labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+            labels: hourLabels,
             datasets: [{
-                label: 'Doanh thu',
-                data: [5000000, 8000000, 12000000, 6000000, 14000000, 10000000],
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                label: 'Doanh thu theo giờ (VNĐ)',
+                data: revenueData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
                 fill: true,
                 tension: 0.4,
-                pointRadius: 5,
-                pointHoverRadius: 7
+                pointRadius: pointRadius,
+                pointHoverRadius: 8,
+                pointBackgroundColor: pointColors,
+                pointBorderColor: pointBorderColors,
+                pointBorderWidth: 3
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     labels: {
-                        color: '#333'
+                        color: '#333',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
                     }
                 },
                 tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
                     callbacks: {
+                        title: function(context) {
+                            const hour = context[0].label;
+                            const isCurrentHour = context[0].dataIndex === currentHour;
+                            return hour + (isCurrentHour ? ' ⭐' : '');
+                        },
                         label: function(context) {
-                            return context.dataset.label + ': ' + context.formattedValue.replace(
-                                /\B(?=(\d{3})+(?!\d))/g, ".") + ' VNĐ';
+                            const value = new Intl.NumberFormat('vi-VN').format(context.parsed.y);
+                            return 'Doanh thu: ' + value + ' VNĐ';
+                        },
+                        afterLabel: function(context) {
+                            if (context.dataIndex === currentHour) {
+                                return '🕐 Giờ hiện tại';
+                            }
+                            return '';
                         }
                     }
                 }
@@ -310,21 +428,62 @@ if(!isset($admin_id)){
             scales: {
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
                     ticks: {
                         callback: function(value) {
-                            return value.toLocaleString() + ' VNĐ';
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return new Intl.NumberFormat('vi-VN').format(value);
                         },
-                        color: '#6b7280'
+                        color: '#6b7280',
+                        font: {
+                            size: 11
+                        }
                     }
                 },
                 x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
                     ticks: {
-                        color: '#6b7280'
+                        color: function(context) {
+                            // Làm nổi bật nhãn giờ hiện tại
+                            return context.index === currentHour ? '#ff6b6b' : '#6b7280';
+                        },
+                        font: {
+                            size: 10,
+                            weight: function(context) {
+                                return context.index === currentHour ? 'bold' : 'normal';
+                            }
+                        },
+                        maxTicksLimit: 12,
+                        callback: function(value, index) {
+                            // Hiển thị tất cả nhãn nhưng làm nổi bật giờ hiện tại
+                            const label = this.getLabelForValue(value);
+                            if (index === currentHour) {
+                                return '⭐ ' + label.replace(' (Hiện tại)', '');
+                            }
+                            return index % 2 === 0 ? label : '';
+                        }
                     }
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
+    
+    // Thêm auto-refresh mỗi 5 phút
+    setTimeout(function() {
+        location.reload();
+    }, 300000); // 5 phút = 300000ms
     </script>
 
 </body>
