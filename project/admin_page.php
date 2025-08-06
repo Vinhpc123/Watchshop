@@ -297,7 +297,7 @@ if(!isset($admin_id)){
             <div class="chart-area">
                 <h2>Biểu đồ Doanh Thu</h2>
                 <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                    📅 <?php echo $day_of_week_vn[$day_of_week] . ', ' . $current_date; ?> | 
+                    📅 <?php echo $day_of_week_vn[$day_of_week] . ', ' . $current_date; ?> |
                     🕐 Giờ hiện tại: <?php echo $current_time; ?> (GMT+7)
                 </p>
                 <canvas id="revenueChart"></canvas>
@@ -376,25 +376,25 @@ if(!isset($admin_id)){
     <!-- code cải tiến với múi giờ Việt Nam -->
     <script>
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-    
+
     // Sử dụng dữ liệu thực từ PHP
     const revenueData = <?php echo $revenue_json; ?>;
     const hourLabels = <?php echo $labels_json; ?>;
     const currentHour = <?php echo $current_hour; ?>;
-    
+
     // Tạo màu cho các điểm - làm nổi bật giờ hiện tại
     const pointColors = hourLabels.map((label, index) => {
         return index === currentHour ? '#ff6b6b' : '#3b82f6';
     });
-    
+
     const pointBorderColors = hourLabels.map((label, index) => {
         return index === currentHour ? '#ffffff' : '#ffffff';
     });
-    
+
     const pointRadius = hourLabels.map((label, index) => {
         return index === currentHour ? 8 : 4;
     });
-    
+
     new Chart(revenueCtx, {
         type: 'line',
         data: {
@@ -505,7 +505,7 @@ if(!isset($admin_id)){
             }
         }
     });
-    
+
     // Thêm auto-refresh mỗi 5 phút
     setTimeout(function() {
         location.reload();

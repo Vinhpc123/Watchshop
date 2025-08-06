@@ -23,6 +23,8 @@ if(isset($message)){
             <a href="admin_orders.php">Đặt hàng</a>
             <a href="admin_users.php">Users</a>
             <a href="admin_contacts.php">Tin nhắn</a>
+            <a href="admin_pos.php">Bán hàng</a>
+
         </nav>
 
         <div class="icons">

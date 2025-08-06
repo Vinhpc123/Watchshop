@@ -70,6 +70,7 @@ if (isset($_GET['delete'])) {
     .orders-table th {
         background-color: #f0f0f0;
         font-size: 1.5rem;
+        text-align: center;
     }
 
     .orders-table tbody tr:hover {
