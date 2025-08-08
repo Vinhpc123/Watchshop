@@ -23,267 +23,423 @@ if(!isset($admin_id)){
 
     <!-- font awesome cdn link  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- custom admin css file link  -->
     <link rel="stylesheet" href="css/admin_style.css">
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-    .table-container {
-        overflow-x: auto;
-        margin: 2rem auto;
-        max-width: 1200px;
-        padding: 1rem;
-        background: var(--white);
-        border-radius: .5rem;
-        box-shadow: var(--box-shadow);
-    }
-
-    /* Bảng chính */
-    .user-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 1.7rem;
-        min-width: 700px;
-        /* đảm bảo bảng không bị bóp quá nhỏ */
-    }
-
-    .user-table thead {
-        background: #f1f1f1;
-    }
-
-    .user-table th,
-    .user-table td {
-        padding: 1.2rem 1.5rem;
-        border: 1px solid #ccc;
-        text-align: left;
-        white-space: nowrap;
-        /* giữ chữ không bị xuống dòng */
-    }
-
-    /* Nút xóa */
-    .user-table td a.delete-btn {
-        background: #e74c3c;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: .3rem;
-        text-decoration: none;
-        font-size: 1.4rem;
-    }
-
-    .user-table td a.delete-btn:hover {
-        background: #c0392b;
-    }
-
-    /* --- Responsive --- */
-    @media screen and (max-width: 768px) {
-        .table-container {
-            padding: 0.5rem;
-        }
-
-        .user-table {
-            font-size: 1.4rem;
-            min-width: unset;
-        }
-
-        .user-table th,
-        .user-table td {
-            padding: 0.8rem;
-            font-size: 1.3rem;
-        }
-
-        .user-table td a.delete-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 1.2rem;
-        }
-    }
-
-    @media screen and (max-width: 480px) {
-        .user-table {
-            font-size: 1.2rem;
-        }
-
-        .user-table th,
-        .user-table td {
-            padding: 0.5rem;
-        }
-
-        .user-table td a.delete-btn {
-            padding: 0.3rem 0.6rem;
-            font-size: 1.1rem;
-        }
-    }
-
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+    /* Layout */
     body {
-        font-family: 'Inter', sans-serif;
+        background-color: #f9fafb;
+        font-size: 17px;
+        font-family: Arial, Helvetica, sans-serif;
     }
 
-    .fade-in {
-        animation: fadeIn 0.3s ease-in;
+    .section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 2.5rem;
+        /* tăng padding trái/phải */
+        display: block;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+
+    .hidden {
+        display: none;
+    }
+
+    /* Typography */
+    h2 {
+        text-align: left;
+        text-transform: uppercase;
+        color: var(--black);
+        font-size: 4rem;
+    }
+
+    .text-gray-600 {
+        color: #4b5563;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    p.text-gray-600 {
+        margin-bottom: 12px;
+    }
+
+    /* Grid POS */
+    .grid-pos {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+
+    }
+
+    @media (max-width: 1023px) {
+        .grid-pos {
+            grid-template-columns: 1fr;
         }
+    }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+    /* Box/Card */
+    .box {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        border: 1px solid #d1d5db;
+        padding: 1rem 1rem;
+        min-height: 450px;
+
+    }
+
+
+    /* Input */
+    .input-search,
+    .input-select {
+        width: 100%;
+        padding: 1rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1.5rem;
+        outline: none;
+        transition: border-color 0.2s;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-search:focus,
+    .input-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
+
+    .input-label {
+        display: block;
+        font-size: 1.3rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        max-height: 470px;
+        overflow-y: auto;
+    }
+
+    @media (max-width: 1279px) {
+        .product-grid {
+            grid-template-columns: 1fr 1fr;
         }
     }
 
-    .notification {
-        animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-        }
-
-        to {
-            transform: translateX(0);
+    @media (max-width: 767px) {
+        .product-grid {
+            grid-template-columns: 1fr;
         }
     }
 
-    /* Notification container */
+    /* Product Item */
+    .product-item {
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+        background: #fff;
+    }
+
+    .product-item:hover {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    }
+
+    .product-item .product-name {
+        font-weight: 500;
+        color: #1f2937;
+        font-size: 1.3rem;
+    }
+
+    .product-item .product-price {
+        color: #2563eb;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+
+    .product-item .product-stock {
+        font-size: 0.8rem;
+        color: #6b7280;
+    }
+
+    /* Cart */
+    .cart-section {}
+
+    .cart-items {
+        margin-bottom: 1rem;
+        max-height: 16rem;
+        overflow-y: auto;
+    }
+
+    .cart-empty {
+        color: #6b7280;
+        text-align: center;
+        padding: 2rem 0;
+        font-size: 1.5rem;
+    }
+
+    .cart-summary {
+        border-top: 1px solid #d1d5db;
+        padding-top: 1rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-row.total {
+        margin-bottom: 1rem;
+    }
+
+    .label {
+        color: #4b5563;
+        font-size: 1.3rem;
+    }
+
+    .value {
+        font-weight: 500;
+        font-size: 1.3rem;
+    }
+
+    .total-value {
+        color: #2563eb;
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+
+    /* Cart Item */
+    .cart-items .cart-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1rem;
+        /* tăng padding */
+        background: #f9fafb;
+        border-radius: 0.75rem;
+        /* bo góc lớn hơn */
+        margin-bottom: 1rem;
+        /* tăng khoảng cách giữa các item */
+        font-size: 1.2rem;
+        /* tăng cỡ chữ */
+        min-height: 70px;
+    }
+
+    .cart-items .item-info {
+        flex: 1;
+    }
+
+    .cart-items .item-name {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    .cart-items .item-price {
+        font-size: 1.3rem;
+        color: #6b7280;
+    }
+
+    .cart-items .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cart-items .item-btn {
+        width: 2rem;
+        height: 2rem;
+        background: #e5e7eb;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .cart-items .item-btn:hover {
+        background: #d1d5db;
+    }
+
+    .cart-items .remove-btn {
+        color: #ef4444;
+        background: none;
+        border: none;
+        margin-left: 0.5rem;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .cart-items .remove-btn:hover {
+        color: #b91c1c;
+    }
+
+    /* Button */
+    .checkout-btn {
+        width: 100%;
+        padding: 14px;
+        background: #8e44ad;
+        color: white;
+        border: none;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .checkout-btn:hover:enabled {
+        background: #1d4ed8;
+    }
+
+    .checkout-btn:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+    }
+
+    /* Notification */
     #customNotification {
         position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
+        top: 60px;
+        /* Dưới header, có thể chỉnh lại cho phù hợp */
+        right: 2rem;
         z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
+        min-width: 260px;
+        max-width: 350px;
+        pointer-events: none;
     }
 
-    /* Toast notification */
     .toast {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 12px 20px;
-        border-radius: 8px;
-        color: #fff;
-        font-size: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        animation: fadeInSlide 0.3s ease, fadeOutSlide 0.5s ease 2.5s forwards;
+        gap: 0.75rem;
+        background: #fff;
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2563eb;
+        margin-bottom: 1rem;
+        border-left: 5px solid #2563eb;
+        opacity: 1;
+        transition: opacity 0.5s, transform 0.3s;
+        transform: translateY(0);
     }
 
-    /* Background color by type */
     .toast.success {
-        background-color: #22c55e;
+        color: #16a34a;
+        border-left-color: #16a34a;
     }
 
-    /* green */
     .toast.error {
-        background-color: #ef4444;
+        color: #dc2626;
+        border-left-color: #dc2626;
     }
 
-    /* red */
     .toast.info {
-        background-color: #3b82f6;
+        color: #2563eb;
+        border-left-color: #2563eb;
     }
 
-    /* blue */
     .toast.warning {
-        background-color: #f59e0b;
+        color: #f59e42;
+        border-left-color: #f59e42;
     }
 
-    /* yellow */
-
-    /* Animations */
-    @keyframes fadeInSlide {
-        from {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+    .toast.opacity-0 {
+        opacity: 0;
+        transform: translateY(-20px);
     }
 
-    @keyframes fadeOutSlide {
-        to {
-            opacity: 0;
-            transform: translateX(30px);
-        }
+    .toast i {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    /* img */
+    .product-item img.product-img {
+        display: block;
+        margin: 0 auto 12px auto;
+        background: #f3f4f6;
+        border-radius: 12px;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
     }
     </style>
-
 </head>
 
-<body class="bg-gray-50">
-
+<body>
     <?php include 'admin_header.php'; ?>
 
     <!-- POS Section -->
-    <div id="pos" class="section hidden max-w-[1600px] mx-auto px-6 py-8 text-[17px] leading-relaxed">
+    <div id="pos" class="section hidden">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Bán hàng (POS)</h2>
+            <h2>Bán hàng (POS)</h2>
             <p class="text-gray-600">Tạo đơn hàng và thanh toán</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid-pos">
             <!-- Product Selection -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-sm border p-6">
+            <div class="product-selection">
+                <div class="box">
                     <div class="mb-4">
                         <input type="text" id="posProductSearch" placeholder="Tìm sản phẩm để thêm vào giỏ..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            class="input-search">
                     </div>
-                    <div id="posProductGrid"
-                        class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                    <div id="posProductGrid" class="product-grid">
                         <!-- Products will be populated here -->
                     </div>
                 </div>
             </div>
 
             <!-- Cart and Checkout -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm border p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Giỏ hàng</h3>
-                    <div id="cartItems" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                        <p class="text-gray-500 text-center py-8 text-base">Giỏ hàng trống</p>
+            <div class="cart-section">
+                <div class="box">
+                    <h3>Giỏ hàng</h3>
+                    <div id="cartItems" class="cart-items">
+                        <p class="cart-empty">Giỏ hàng trống</p>
                     </div>
 
-                    <div class="border-t pt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-600 text-base">Tạm tính:</span>
-                            <span id="subtotal" class="font-medium text-base">0₫</span>
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span class="label">Tạm tính:</span>
+                            <span id="subtotal" class="value">0₫</span>
                         </div>
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xl font-semibold">Tổng cộng:</span>
-                            <span id="total" class="text-xl font-bold text-blue-600">0₫</span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-base font-medium text-gray-700 mb-2">Khách hàng</label>
-                            <select id="posCustomer"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base">
-                                <option value="">Khách lẻ</option>
-                            </select>
+                        <div class="summary-row total">
+                            <span class="label">Tổng cộng:</span>
+                            <span id="total" class="value total-value">0₫</span>
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-base font-medium text-gray-700 mb-2">Phương thức thanh toán</label>
-                            <select id="paymentMethod"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base">
+                            <label class="input-label">Khách hàng</label>
+                            <div class="input-select" style="background:#f3f4f6;pointer-events:none;user-select:none;">
+                                Khách lẻ</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="input-label">Phương thức thanh toán</label>
+                            <select id="paymentMethod" class="input-select">
                                 <option value="cash">Tiền mặt</option>
                                 <option value="transfer">Chuyển khoản</option>
                             </select>
                         </div>
 
-                        <button onclick="processOrder()" id="checkoutBtn" disabled
-                            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-3 rounded-lg font-medium transition-colors text-base">
+                        <button onclick="processOrder()" id="checkoutBtn" disabled class="checkout-btn">
                             Thanh toán
                         </button>
                     </div>
@@ -293,25 +449,25 @@ if(!isset($admin_id)){
     </div>
 
     <!-- Notification Container -->
-    <div id="customNotification" class="fixed top-6 right-6 z-50 space-y-2"></div>
+    <div id="customNotification"></div>
 
-
-    <!-- js  -->
     <?php
     $products_arr = [];
-    $select_products = mysqli_query($conn, "SELECT id, name, price FROM products") or die('Query failed');
+    $select_products = mysqli_query($conn, "SELECT id, name, price, image FROM products") or die('Query failed');
     while ($row = mysqli_fetch_assoc($select_products)) {
         $products_arr[] = [
             'id' =>  $row['id'],
             'name' => $row['name'],
             'category' => 'other',
             'price' => (float)$row['price'],
-            'stock' => 50, // mặc định 10 sản phẩm trong kho
-            'threshold' => 3, // cảnh báo khi còn < 3
+            'stock' => 50,
+            'threshold' => 3,
             'description' => '',
-            'sold' => 0
+            'sold' => 0,
+            'image' => $row['image'] // không còn lỗi undefined
         ];
     }
+    $users_arr = [];
     $select_users = mysqli_query($conn, "SELECT id, name, email FROM users") or die('Query failed');
     while ($row = mysqli_fetch_assoc($select_users)) {
         $users_arr[] = [
@@ -341,28 +497,25 @@ if(!isset($admin_id)){
         }).format(amount);
     }
 
-    function formatDate(date) {
-        return new Date(date).toLocaleDateString('vi-VN');
-    }
-
     function showNotification(message, type = 'success') {
         const container = document.getElementById('customNotification');
-
         const iconMap = {
             success: 'fa-check-circle',
             error: 'fa-times-circle',
             info: 'fa-info-circle',
             warning: 'fa-exclamation-triangle'
         };
-
         const notification = document.createElement('div');
         notification.className = `toast ${type}`;
         notification.innerHTML = `
-                <i class="fas ${iconMap[type] || 'fa-info-circle'}"></i>
-                <span>${message}</span>
-            `;
-
+            <i class="fas ${iconMap[type] || 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        `;
         container.appendChild(notification);
+        // Giới hạn tối đa 6 toast
+        while (container.children.length > 4) {
+            container.removeChild(container.firstChild);
+        }
 
         setTimeout(() => {
             notification.classList.add('opacity-0');
@@ -370,32 +523,35 @@ if(!isset($admin_id)){
         }, 3000);
     }
 
-
-
     function loadPOS() {
         loadPOSProducts();
-        loadPOSCustomers();
         updateCartDisplay();
     }
 
     function loadPOSProducts() {
         const searchTerm = document.getElementById('posProductSearch')?.value.toLowerCase() || '';
-
         let filteredProducts = products.filter(product => {
             return product.stock > 0 && product.name.toLowerCase().includes(searchTerm);
         });
 
         const productsHtml = filteredProducts.map(product => `
-                <div class="product-item border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-id="${product.id}">
-                    <div class="flex items-center justify-between mb-2">
-                        <h4 class="font-medium text-gray-800 text-sm">${product.name}</h4>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-600 font-bold">${formatCurrency(product.price)}</span>
-                        <span class="text-xs text-gray-500">Còn: ${product.stock}</span>
-                    </div>
-                </div>
-            `).join('');
+            <div class="product-item" data-id="${product.id}">
+            <img 
+                src="uploaded_img/${product.image || 'no-image.png'}" 
+                alt="Đồng hồ ${product.name}" 
+                width="120" height="120"
+                loading="lazy"
+                class="product-img"
+            >
+            <div>
+                <h4 class="product-name">${product.name}</h4>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span class="product-price">${formatCurrency(product.price)}</span>
+                <span class="product-stock">Còn: ${product.stock}</span>
+            </div>
+        </div>
+        `).join('');
         const grid = document.getElementById('posProductGrid');
         grid.innerHTML = productsHtml;
 
@@ -409,16 +565,6 @@ if(!isset($admin_id)){
     }
 
 
-    function loadPOSCustomers() {
-        const customerOptions = customers.map(customer =>
-            `<option value="${customer.id}">${customer.name} - ${customer.email}</option>`
-        ).join('');
-
-        document.getElementById('posCustomer').innerHTML = `
-                <option value="">Khách lẻ</option>
-                ${customerOptions}
-            `;
-    }
 
     function addToCart(productId) {
         const product = products.find(p => p.id == productId);
@@ -447,8 +593,12 @@ if(!isset($admin_id)){
     }
 
     function removeFromCart(productId) {
+        const item = cart.find(item => item.id == productId);
         cart = cart.filter(item => item.id != productId);
         updateCartDisplay();
+        if (item) {
+            showNotification(`Đã xóa ${item.name} khỏi giỏ hàng`, 'info');
+        }
     }
 
     function updateQuantity(productId, change) {
@@ -471,25 +621,25 @@ if(!isset($admin_id)){
         const cartItemsContainer = document.getElementById('cartItems');
 
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Giỏ hàng trống</p>';
+            cartItemsContainer.innerHTML = '<p class="cart-empty">Giỏ hàng trống</p>';
             document.getElementById('checkoutBtn').disabled = true;
         } else {
             const cartHtml = cart.map(item => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div class="flex-1">
-                            <p class="font-medium text-sm">${item.name}</p>
-                            <p class="text-xs text-gray-500">${formatCurrency(item.price)}</p>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 bg-gray-200 rounded text-xs hover:bg-gray-300">-</button>
-                            <span class="text-sm font-medium w-8 text-center">${item.quantity}</span>
-                            <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 bg-gray-200 rounded text-xs hover:bg-gray-300">+</button>
-                            <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 ml-2">
-                                <i class="fas fa-trash text-xs"></i>
-                            </button>
-                        </div>
+                <div class="cart-item">
+                    <div class="item-info">
+                        <p class="item-name">${item.name}</p>
+                        <p class="item-price">${formatCurrency(item.price)}</p>
                     </div>
-                `).join('');
+                    <div class="item-actions">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="item-btn">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="item-btn">+</button>
+                        <button onclick="removeFromCart(${item.id})" class="remove-btn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
 
             cartItemsContainer.innerHTML = cartHtml;
             document.getElementById('checkoutBtn').disabled = false;
@@ -504,16 +654,13 @@ if(!isset($admin_id)){
     function processOrder() {
         if (cart.length === 0) return;
 
-        const customerId = document.getElementById('posCustomer').value;
+        const customerId = null;
+        const customerName = 'Khách lẻ';
         const paymentMethod = document.getElementById('paymentMethod').value;
-
-        const customerName = customerId ?
-            customers.find(c => c.id == customerId)?.name || 'Khách lẻ' :
-            'Khách lẻ';
 
         const order = {
             id: Date.now(),
-            customerId: customerId || null,
+            customerId: customerId,
             customerName: customerName,
             date: new Date().toISOString(),
             items: [...cart],
@@ -549,7 +696,6 @@ if(!isset($admin_id)){
                 console.error('Error saving order:', error);
             });
 
-
         // Clear cart
         cart = [];
         updateCartDisplay();
@@ -565,8 +711,6 @@ if(!isset($admin_id)){
         document.getElementById('posProductSearch')?.addEventListener('input', loadPOSProducts);
     });
     </script>
-
-
 </body>
 
 </html>

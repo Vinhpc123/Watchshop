@@ -15,7 +15,7 @@ if ($data) {
     // chuyển items thành chuỗi
     $total_products = '';
     foreach ($data['items'] as $item) {
-        $total_products .= $item['name'] . ' x ' . $item['quantity'] . ', ';
+        $total_products .= $item['name'] . ' (' . $item['quantity'] . '), ';
     }
     $total_products = rtrim($total_products, ', ');
     
