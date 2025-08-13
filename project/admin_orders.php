@@ -1,15 +1,15 @@
 <?php
-
 include 'config.php';
-
 session_start();
 
 $admin_id = $_SESSION['admin_id'];
 
 if (!isset($admin_id)) {
     header('location:login.php');
+    exit();
 }
 
+// Cập nhật trạng thái thanh toán
 if (isset($_POST['update_order'])) {
     $order_update_id = $_POST['order_id'];
     $update_payment = $_POST['update_payment'];
@@ -17,12 +17,42 @@ if (isset($_POST['update_order'])) {
     $message[] = 'Trạng thái thanh toán đã được cập nhật!';
 }
 
+// Xóa đơn hàng
 if (isset($_GET['delete'])) {
     $delete_id = $_GET['delete'];
     mysqli_query($conn, "DELETE FROM `orders` WHERE id = '$delete_id'") or die('query failed');
     header('location:admin_orders.php');
+    exit();
 }
 
+// Lấy giá trị tìm kiếm
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$whereClause = "";
+if (!empty($search)) {
+    if (ctype_digit($search)) {
+        $whereClause = "WHERE id = '$search' 
+                        OR id LIKE '%$search%' 
+                        OR name LIKE '%$search%' 
+                        OR email LIKE '%$search%' 
+                        OR number LIKE '%$search%'";
+    } else {
+        $whereClause = "WHERE name LIKE '%$search%' 
+                        OR email LIKE '%$search%' 
+                        OR number LIKE '%$search%'";
+    }
+}
+
+// Phân trang
+$orders_per_page = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start_from = ($page - 1) * $orders_per_page;
+
+$total_orders_query = mysqli_query($conn, "SELECT * FROM `orders` $whereClause") or die('query failed');
+$total_orders = mysqli_num_rows($total_orders_query);
+$total_pages = ceil($total_orders / $orders_per_page);
+
+// Lấy đơn hàng
+$select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER BY id DESC LIMIT $start_from, $orders_per_page") or die('query failed');
 ?>
 
 <!DOCTYPE html>
@@ -30,12 +60,12 @@ if (isset($_GET['delete'])) {
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>orders</title>
+    <title>Quản lý đơn hàng</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin_style.css">
     <style>
+    /* Giữ nguyên style bảng của bạn */
     .table-container {
         background: #ffffff;
         border-radius: 12px;
@@ -46,7 +76,6 @@ if (isset($_GET['delete'])) {
         margin: 0 auto;
     }
 
-
     .orders-table {
         width: 100%;
         border-collapse: collapse;
@@ -54,17 +83,12 @@ if (isset($_GET['delete'])) {
         min-width: 1200px;
     }
 
-    .orders-table thead {
-        background-color: #f9fafb;
-    }
-
     .orders-table th,
     .orders-table td {
         padding: 1.2rem 1rem;
         text-align: left;
-        border-bottom: 1px solid #e0e0e0;
-        color: #000;
         border: 1px solid #ccc;
+        color: #000;
     }
 
     .orders-table th {
@@ -75,7 +99,6 @@ if (isset($_GET['delete'])) {
 
     .orders-table tbody tr:hover {
         background-color: #f2f2f2;
-        transition: background 0.3s ease;
     }
 
     .option-btn,
@@ -84,7 +107,6 @@ if (isset($_GET['delete'])) {
         border-radius: 8px;
         font-size: 1.2rem;
         cursor: pointer;
-        transition: all 0.3s ease;
         margin-bottom: 10px;
     }
 
@@ -109,7 +131,6 @@ if (isset($_GET['delete'])) {
     }
 
     select {
-        display: inline-block;
         padding: 6px 16px;
         border-radius: 20px;
         font-weight: 600;
@@ -129,7 +150,6 @@ if (isset($_GET['delete'])) {
     .pagination {
         display: flex;
         justify-content: center;
-        align-items: center;
         gap: 8px;
         margin-top: 2rem;
         flex-wrap: wrap;
@@ -141,8 +161,6 @@ if (isset($_GET['delete'])) {
         color: #333;
         border-radius: 10px;
         text-decoration: none;
-        font-size: 1.2rem;
-        transition: background 0.3s ease;
     }
 
     .pagination a.active {
@@ -155,62 +173,64 @@ if (isset($_GET['delete'])) {
         background-color: #d5d5d5;
     }
 
-    @media (max-width: 768px) {
-        .orders-table {
-            font-size: 1.2rem;
-            min-width: 100%;
-        }
+    .search-box {
+        text-align: right;
+        margin: 1rem 3.5rem;
+    }
 
-        .orders .title {
-            font-size: 2rem;
-        }
+    .search-box input {
+        width: 30%;
+        padding: 1rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1.5rem;
+        outline: none;
+        transition: border-color 0.2s;
+        margin-bottom: 0.5rem;
+    }
 
-        .option-btn,
-        .delete-btn {
-            font-size: 1rem;
-            padding: 5px 10px;
-        }
+    .search-box button {
+        padding: 1rem 1rem;
+        border: none;
+        border-radius: 8px;
+        background: #3498db;
+        color: #fff;
+        cursor: pointer;
+    }
 
-        .table-container {
-            padding: 0.5rem;
-        }
+    .search-box button:hover {
+        background: #2980b9;
     }
     </style>
 </head>
 
 <body>
+
     <?php include 'admin_header.php'; ?>
 
     <section class="orders">
-        <h1 class="title">Đã đặt hàng</h1>
+        <h1 class="title">Quản lý đơn hàng</h1>
 
-        <?php
-        $orders_per_page = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $start_from = ($page - 1) * $orders_per_page;
-
-        $total_orders = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM `orders`"));
-        $total_pages = ceil($total_orders / $orders_per_page);
-        ?>
-
-        <form method="get" style="margin: 1rem 3.5rem; text-align: right;">
-            Hiển thị:
+        <!-- Form tìm kiếm -->
+        <form method="get" class="search-box" style="margin: 1rem 3.5rem; text-align: left;">
+            <input type="text" name="search" placeholder="Tìm theo ID, tên, email, SĐT..."
+                value="<?php echo htmlspecialchars($search); ?>">
+            <button type="submit">Tìm kiếm</button>
             <select name="limit" onchange="this.form.submit()">
                 <option value="5" <?php if ($orders_per_page == 5) echo 'selected'; ?>>5</option>
                 <option value="10" <?php if ($orders_per_page == 10) echo 'selected'; ?>>10</option>
                 <option value="20" <?php if ($orders_per_page == 20) echo 'selected'; ?>>20</option>
                 <option value="50" <?php if ($orders_per_page == 50) echo 'selected'; ?>>50</option>
-            </select> đơn mỗi trang
+            </select>
             <input type="hidden" name="page" value="1">
         </form>
-
 
         <div class="table-container">
             <table class="orders-table">
                 <thead>
                     <tr>
-                        <th>User ID</th>
-                        <th>Ngày đặt hàng</th>
+                        <th>Order ID</th>
+                        <th>Ngày đặt</th>
                         <th>Tên</th>
                         <th>SĐT</th>
                         <th>Email</th>
@@ -223,13 +243,10 @@ if (isset($_GET['delete'])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $select_orders = mysqli_query($conn, "SELECT * FROM `orders` ORDER BY id DESC LIMIT $start_from, $orders_per_page") or die('query failed');
-                    if (mysqli_num_rows($select_orders) > 0) {
-                        while ($fetch_orders = mysqli_fetch_assoc($select_orders)) {
-                    ?>
+                    <?php if (mysqli_num_rows($select_orders) > 0): ?>
+                    <?php while ($fetch_orders = mysqli_fetch_assoc($select_orders)): ?>
                     <tr>
-                        <td><?php echo $fetch_orders['user_id']; ?></td>
+                        <td><?php echo $fetch_orders['id']; ?></td>
                         <td><?php echo $fetch_orders['placed_on']; ?></td>
                         <td><?php echo $fetch_orders['name']; ?></td>
                         <td><?php echo $fetch_orders['number']; ?></td>
@@ -251,30 +268,33 @@ if (isset($_GET['delete'])) {
                         </td>
                         <td>
                             <a href="admin_orders.php?delete=<?php echo $fetch_orders['id']; ?>"
-                                onclick="return confirm('Bạn có muốn xóa đơn đặt hàng này?');"
-                                class="delete-btn">Xóa</a>
+                                onclick="return confirm('Xóa đơn này?');" class="delete-btn">Xóa</a>
                         </td>
                     </tr>
-                    <?php }} else { ?>
+                    <?php endwhile; ?>
+                    <?php else: ?>
                     <tr>
-                        <td colspan="11">Chưa có đơn hàng nào được đặt!</td>
+                        <td colspan="11" style="text-align:center;">Không tìm thấy đơn hàng!</td>
                     </tr>
-                    <?php } ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
 
+            <!-- Phân trang -->
             <div class="pagination">
                 <?php if ($page > 1): ?>
-                <a href="admin_orders.php?page=<?php echo $page - 1; ?>&limit=<?php echo $orders_per_page; ?>">Trước</a>
+                <a
+                    href="?page=<?php echo $page-1; ?>&limit=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search); ?>">Trước</a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a href="admin_orders.php?page=<?php echo $i; ?>&limit=<?php echo $orders_per_page; ?>"
+                <a href="?page=<?php echo $i; ?>&limit=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search); ?>"
                     class="<?php echo ($i == $page) ? 'active' : ''; ?>"><?php echo $i; ?></a>
                 <?php endfor; ?>
 
                 <?php if ($page < $total_pages): ?>
-                <a href="admin_orders.php?page=<?php echo $page + 1; ?>&limit=<?php echo $orders_per_page; ?>">Sau</a>
+                <a
+                    href="?page=<?php echo $page+1; ?>&limit=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search); ?>">Sau</a>
                 <?php endif; ?>
             </div>
         </div>

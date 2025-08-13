@@ -482,6 +482,7 @@ if(!isset($admin_id)){
     // Data Storage
     let products = <?php echo json_encode($products_arr, JSON_UNESCAPED_UNICODE); ?>;
     let customers = <?php echo json_encode($users_arr, JSON_UNESCAPED_UNICODE); ?>;
+    let orders = []; // mảng lưu các đơn hàng
     let cart = [];
 
     // Utility Functions
@@ -651,6 +652,8 @@ if(!isset($admin_id)){
         document.getElementById('total').textContent = formatCurrency(subtotal);
     }
 
+
+
     function processOrder() {
         if (cart.length === 0) return;
 
@@ -659,17 +662,17 @@ if(!isset($admin_id)){
         const paymentMethod = document.getElementById('paymentMethod').value;
 
         const order = {
-            id: Date.now(),
-            customerId: customerId,
-            customerName: customerName,
+            id: Date.now(), // ID tạm thời, sẽ được server trả lại ID chính xác
+            customerId,
+            customerName,
             date: new Date().toISOString(),
             items: [...cart],
             total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-            paymentMethod: paymentMethod,
+            paymentMethod,
             status: 'completed'
         };
 
-        // Update product stock and sold count
+        // Cập nhật kho
         cart.forEach(item => {
             const product = products.find(p => p.id === item.id);
             if (product) {
@@ -688,21 +691,136 @@ if(!isset($admin_id)){
                 },
                 body: JSON.stringify(order)
             })
-            .then(response => response.text())
+            .then(res => res.json()) // parse JSON trả về
             .then(data => {
-                console.log('Server response:', data);
+                if (data.error) {
+                    console.error(data.error);
+                    showNotification('Lưu đơn hàng thất bại!', 'error');
+                    return;
+                }
+
+                // Dùng dữ liệu đơn hàng trả về từ server, có ID chính xác
+                orders.push(data);
+
+                // In hóa đơn ngay với ID thật
+                printInvoice(data.id);
+
+                // Clear giỏ hàng và load lại
+                cart = [];
+                updateCartDisplay();
+                loadPOSProducts();
+
+                showNotification('Đã tạo đơn hàng thành công!');
             })
-            .catch(error => {
-                console.error('Error saving order:', error);
+            .catch(err => {
+                console.error('Error saving order:', err);
+                showNotification('Lỗi khi lưu đơn hàng!', 'error');
             });
-
-        // Clear cart
-        cart = [];
-        updateCartDisplay();
-        loadPOSProducts();
-
-        showNotification('Đã tạo đơn hàng thành công!');
     }
+
+
+
+
+    function removeVietnameseTones(str) {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, "d").replace(/Đ/g, "D");
+    }
+
+    function formatCurrency(num) {
+        return num.toLocaleString('en-US', {
+            minimumFractionDigits: 0
+        });
+    }
+
+    function printInvoice(orderId) {
+        const order = orders.find(o => o.id === orderId);
+        if (!order) return;
+
+        const {
+            jsPDF
+        } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Tiêu đề
+        doc.setFontSize(20);
+        doc.text(removeVietnameseTones('HÓA ĐƠN BÁN HÀNG'), 105, 20, {
+            align: 'center'
+        });
+
+        doc.setFontSize(12);
+        doc.text(`Mã ID: #${order.id}`, 20, 40);
+        doc.text(`Ngày: ${formatDate(order.date)}`, 20, 50);
+        doc.text(`Khách hàng: ${removeVietnameseTones(order.customerName)}`, 20, 60);
+
+        // Header bảng
+        let yPos = 80;
+        doc.setFontSize(12);
+        doc.text("San pham", 20, yPos);
+        doc.text("SL", 100, yPos, {
+            align: 'right'
+        });
+        doc.text("Giá", 140, yPos, {
+            align: 'right'
+        });
+
+        yPos += 8;
+
+        order.items.forEach(item => {
+            // Dòng tên sản phẩm + số lượng + giá đơn vị
+            doc.text(removeVietnameseTones(item.name), 20, yPos);
+            doc.text(String(item.quantity), 100, yPos, {
+                align: 'right'
+            });
+            doc.text(formatCurrency(item.price), 140, yPos, {
+                align: 'right'
+            });
+            yPos += 6;
+
+            // Dòng tổng tiền cho sản phẩm đó
+            doc.setFontSize(10);
+            doc.text(`Tong: ${formatCurrency(item.quantity * item.price)}`, 140, yPos, {
+                align: 'right'
+            });
+            doc.setFontSize(12);
+            yPos += 8;
+        });
+
+        // Tổng cộng cuối
+        yPos += 5;
+        doc.setFontSize(14);
+        doc.text(`Tong cong: ${formatCurrency(order.total)} VND`, 140, yPos, {
+            align: 'right'
+        });
+
+        doc.save(`invoice-${order.id}.pdf`);
+        showNotification('PDF invoice has been generated');
+    }
+
+
+
+    // Hàm format tiền
+    function formatCurrency(num) {
+        return num.toLocaleString('en-US', {
+            minimumFractionDigits: 0
+        });
+    }
+
+
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+
 
     window.addEventListener('DOMContentLoaded', () => {
         const posSection = document.getElementById('pos');
