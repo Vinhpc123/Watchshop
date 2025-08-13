@@ -61,6 +61,19 @@ if (isset($_POST['update_product'])) {
 
    header('location:admin_products.php');
 }
+
+    if (isset($_GET['per_page'])) {
+        $orders_per_page = (int)$_GET['per_page'];
+    } else {
+        $orders_per_page = 10; // Giá trị mặc định
+    }
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $start = ($page - 1) * $orders_per_page;
+
+    // Lấy tổng số sản phẩm
+    $total_products = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM products"));
+    // Lấy sản phẩm theo phân trang
+    $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $orders_per_page");
 ?>
 
 
@@ -244,7 +257,7 @@ if (isset($_POST['update_product'])) {
     }
 
     .option-btn,
-    .delete-btn {
+    .delete-btn1 {
         padding: 8px 12px;
         border-radius: 6px;
         font-size: 1.4rem;
@@ -258,8 +271,8 @@ if (isset($_POST['update_product'])) {
         background-color: #2980b9;
     }
 
-    .delete-btn {
-        background-color: #e74c3c;
+    .delete-btn1 {
+        background-color: var(--red);
     }
 
     .edit-product-form img {
@@ -328,17 +341,21 @@ if (isset($_POST['update_product'])) {
 
             <div class="filter-bar">
                 <div class="filter-left">
-                    <label for="per-page">Hiển thị:</label>
-                    <select id="per-page" name="per_page">
-                        <option>10</option>
-                        <option selected>20</option>
-                        <option>50</option>
-                    </select>
+                    <form method="get" style="display:inline;">
+                        <label for="per-page">Hiển thị:</label>
+                        <select id="per-page" name="per_page" onchange="this.form.submit()">
+                            <option value="5" <?php if ($orders_per_page == 5) echo 'selected'; ?>>5</option>
+                            <option value="10" <?php if ($orders_per_page == 10) echo 'selected'; ?>>10</option>
+                            <option value="20" <?php if ($orders_per_page == 20) echo 'selected'; ?>>20</option>
+                            <option value="50" <?php if ($orders_per_page == 50) echo 'selected'; ?>>50</option>
+                        </select>
+                        <!-- Giữ tham số page nếu có -->
+                        <?php if (isset($_GET['page'])): ?>
+                        <input type="hidden" name="page" value="<?php echo (int)$_GET['page']; ?>">
+                        <?php endif; ?>
+                    </form>
                 </div>
-                <?php
-                  $select_products = mysqli_query($conn, "SELECT * FROM products");
-                  ?>
-                <span>Tìm thấy <?php echo mysqli_num_rows($select_products); ?> sản phẩm</span>
+                <span>Tìm thấy <?php echo $total_products; ?> sản phẩm</span>
             </div>
 
             <table class="product-table">
@@ -362,7 +379,7 @@ if (isset($_POST['update_product'])) {
                         <td><span class="status enabled">Hiện</span></td>
                         <td>
                             <a href="admin_products.php?update=<?php echo $row['id']; ?>" class="option-btn">Sửa</a>
-                            <a href="admin_products.php?delete=<?php echo $row['id']; ?>" class="delete-btn"
+                            <a href="admin_products.php?delete=<?php echo $row['id']; ?>" class="delete-btn1"
                                 onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>

@@ -102,7 +102,7 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
     }
 
     .option-btn,
-    .delete-btn {
+    .delete-btn1 {
         padding: 6px 12px;
         border-radius: 8px;
         font-size: 1.2rem;
@@ -120,13 +120,13 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
         background: #2980b9;
     }
 
-    .delete-btn {
-        background: #e74c3c;
+    .delete-btn1 {
+        background: var(--red);
         color: #fff;
         text-decoration: none;
     }
 
-    .delete-btn:hover {
+    .delete-btn1:hover {
         background: #c0392b;
     }
 
@@ -268,7 +268,7 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
                         </td>
                         <td>
                             <a href="admin_orders.php?delete=<?php echo $fetch_orders['id']; ?>"
-                                onclick="return confirm('Xóa đơn này?');" class="delete-btn">Xóa</a>
+                                onclick="return confirm('Xóa đơn này?');" class="delete-btn1">Xóa</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>

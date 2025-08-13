@@ -66,8 +66,8 @@ if (isset($_GET['delete'])) {
 
 
 
-    .delete-btn {
-        background-color: #e74c3c;
+    .delete-btn1 {
+        background-color: var(--red);
         color: white;
         padding: 8px 14px;
         border-radius: 6px;
@@ -77,7 +77,7 @@ if (isset($_GET['delete'])) {
         margin-bottom: 10px;
     }
 
-    .delete-btn:hover {
+    .delete-btn1:hover {
         background-color: #c0392b;
     }
 
@@ -151,7 +151,7 @@ if (isset($_GET['delete'])) {
                         <td><?php echo $fetch_message['message']; ?></td>
                         <td>
                             <a href="admin_contacts.php?delete=<?php echo $fetch_message['id']; ?>"
-                                onclick="return confirm('Bạn có muốn xóa tin nhắn này?');" class="delete-btn">Xóa</a>
+                                onclick="return confirm('Bạn có muốn xóa tin nhắn này?');" class="delete-btn1">Xóa</a>
                         </td>
                     </tr>
                     <?php

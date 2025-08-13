@@ -788,6 +788,7 @@ if(!isset($admin_id)){
         });
 
         // Tổng cộng cuối
+
         yPos += 5;
         doc.setFontSize(14);
         doc.text(`Tong cong: ${formatCurrency(order.total)} VND`, 140, yPos, {
