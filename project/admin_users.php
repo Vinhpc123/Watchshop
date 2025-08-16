@@ -61,19 +61,19 @@ if(isset($_GET['delete'])){
     .user-table td {
         padding: 1.2rem 1.5rem;
         border: 1px solid #ccc;
-        text-align: left;
+        text-align: center;
         white-space: nowrap;
         /* giữ chữ không bị xuống dòng */
     }
 
     /* Nút xóa */
     .user-table td a.delete-btn {
-        background: #e74c3c;
+        background: var(--red);
         color: white;
-        padding: 0.5rem 1rem;
         border-radius: .3rem;
         text-decoration: none;
         font-size: 1.4rem;
+        margin-bottom: 10px;
     }
 
     .user-table td a.delete-btn:hover {
