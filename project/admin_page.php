@@ -248,36 +248,40 @@ if(!isset($admin_id)){
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         
         $revenue_data = array();
-        $hour_labels = array();
-        
+        $day_labels = array();
+
+        // Lấy doanh thu theo ngày - mặc định 7 ngày gần nhất (bao gồm hôm nay)
+        $days = 7; // bạn có thể thay đổi thành 30 để hiển thị 30 ngày
         $today = date('Y-m-d');
-        $current_hour = (int)date('H');
-        
-        for($hour = 0; $hour < 24; $hour++) {
-            $hour_formatted = sprintf('%02d', $hour);
-            
-            
+
+        // Build dates from oldest -> newest
+        $dates = [];
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $dates[] = date('Y-m-d', strtotime("-{$i} days"));
+        }
+
+        $current_day_index = null;
+        foreach ($dates as $idx => $d) {
             $query = "SELECT SUM(total_price) as revenue FROM `orders` 
-                     WHERE DATE(placed_on) = '$today' 
-                     AND HOUR(placed_on) = $hour
+                     WHERE DATE(placed_on) = '$d'
                      AND payment_status = 'Thành công'";
             $result = mysqli_query($conn, $query);
             $row = mysqli_fetch_assoc($result);
-            
             $revenue = $row['revenue'] ? (int)$row['revenue'] : 0;
             $revenue_data[] = $revenue;
-            
-            if ($hour == $current_hour) {
-                $hour_labels[] = $hour_formatted . ":00 (Hiện tại)";
-            } else {
-                $hour_labels[] = $hour_formatted . ":00";
+
+            // Label format: dd/mm
+            $day_labels[] = date('d/m', strtotime($d));
+
+            if ($d === $today) {
+                $current_day_index = count($day_labels) - 1;
             }
         }
-        
+
         // Chuyển mảng PHP thành JSON cho JavaScript
         $revenue_json = json_encode($revenue_data);
-        $labels_json = json_encode($hour_labels);
-        
+        $labels_json = json_encode($day_labels);
+
         // Lấy thông tin thời gian hiện tại
         $current_time = date('H:i:s');
         $current_date = date('d/m/Y');
@@ -361,6 +365,85 @@ if(!isset($admin_id)){
                     }
                     ?>
                 </ul>
+                <!-- Biểu đồ: Sản phẩm mới đặt (7 ngày gần nhất) -->
+                <?php
+                // Tính sản phẩm được đặt trong 7 ngày gần nhất (đặt trước khi render list)
+                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                $recent_result = mysqli_query($conn, $recent_query);
+                $recent_counts = array();
+                if($recent_result && mysqli_num_rows($recent_result) > 0) {
+                    while($order = mysqli_fetch_assoc($recent_result)) {
+                        $total_products = $order['total_products'];
+                        $products = explode(',', $total_products);
+                        foreach($products as $product) {
+                            $product = trim($product);
+                            if(empty($product)) continue;
+                            if(preg_match('/(.+?)\s*\((\d+)\)/', $product, $m)) {
+                                $pname = trim($m[1]);
+                                $qty = (int)$m[2];
+                                if($pname === '') continue;
+                                if(isset($recent_counts[$pname])) $recent_counts[$pname] += $qty; else $recent_counts[$pname] = $qty;
+                            }
+                        }
+                    }
+                }
+                // Lấy top 5 recent
+                arsort($recent_counts);
+                $recent_top = array_slice($recent_counts, 0, 5, true);
+                ?>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <h2 style="margin-top:1.5rem">Sản phẩm mới đặt (7 ngày)</h2>
+                    <button id="refresh-recent" class="option-btn" style="margin-top:1.5rem; padding:6px 12px; font-size:14px">Refresh</button>
+                </div>
+                <div id="recent-products-container" style="margin-top:0.5rem">
+                    <?php
+                    if (!empty($recent_top)) {
+                        echo '<ul class="product-list">';
+                        $i = 1;
+                        foreach ($recent_top as $name => $qty) {
+                            if ($i > 5) break;
+                            echo '<li><span>' . $i . '. ' . htmlspecialchars($name) . '</span><span>' . $qty . ' cái</span></li>';
+                            $i++;
+                        }
+                        echo '</ul>';
+                    } else {
+                        echo '<ul class="product-list"><li><span>Chưa có đơn hàng trong 7 ngày</span><span>0 cái</span></li></ul>';
+                    }
+                    ?>
+                </div>
+                <?php
+                // Tính sản phẩm được đặt trong 7 ngày gần nhất
+                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                $recent_result = mysqli_query($conn, $recent_query);
+                $recent_counts = array();
+                if(mysqli_num_rows($recent_result) > 0) {
+                    while($order = mysqli_fetch_assoc($recent_result)) {
+                        $total_products = $order['total_products'];
+                        $products = explode(',', $total_products);
+                        foreach($products as $product) {
+                            $product = trim($product);
+                            if(empty($product)) continue;
+                            if(preg_match('/(.+?)\s*\((\d+)\)/', $product, $m)) {
+                                $pname = trim($m[1]);
+                                $qty = (int)$m[2];
+                                if($pname === '') continue;
+                                if(isset($recent_counts[$pname])) $recent_counts[$pname] += $qty; else $recent_counts[$pname] = $qty;
+                            }
+                        }
+                    }
+                }
+                // Lấy top 5 recent
+                arsort($recent_counts);
+                $recent_top = array_slice($recent_counts, 0, 5, true);
+                $recent_labels = array_keys($recent_top);
+                $recent_values = array_values($recent_top);
+                $recent_labels_json = json_encode($recent_labels);
+                $recent_values_json = json_encode($recent_values);
+                // Debug: in ra mảng recent_top khi truy cập với ?debug_recent=1
+                if (isset($_GET['debug_recent']) && $_GET['debug_recent'] == '1') {
+                    echo '<pre style="font-size:12px; background:#fff; padding:10px; border:1px solid #eee; margin-top:10px;">DEBUG recent_top:\n' . htmlspecialchars(print_r($recent_top, true)) . '</pre>';
+                }
+                ?>
             </div>
         </div>
 
@@ -377,30 +460,26 @@ if(!isset($admin_id)){
     <script>
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 
-    // Sử dụng dữ liệu thực từ PHP
+    // Sử dụng dữ liệu thực từ PHP (theo ngày)
     const revenueData = <?php echo $revenue_json; ?>;
-    const hourLabels = <?php echo $labels_json; ?>;
-    const currentHour = <?php echo $current_hour; ?>;
+    const dayLabels = <?php echo $labels_json; ?>;
+    const currentDayIndex = <?php echo json_encode($current_day_index !== null ? $current_day_index : -1); ?>;
 
-    // Tạo màu cho các điểm - làm nổi bật giờ hiện tại
-    const pointColors = hourLabels.map((label, index) => {
-        return index === currentHour ? '#ff6b6b' : '#3b82f6';
+    // Tạo màu cho các điểm - làm nổi bật ngày hiện tại
+    const pointColors = dayLabels.map((label, index) => {
+        return index === currentDayIndex ? '#ff6b6b' : '#3b82f6';
     });
 
-    const pointBorderColors = hourLabels.map((label, index) => {
-        return index === currentHour ? '#ffffff' : '#ffffff';
-    });
-
-    const pointRadius = hourLabels.map((label, index) => {
-        return index === currentHour ? 8 : 4;
+    const pointRadius = dayLabels.map((label, index) => {
+        return index === currentDayIndex ? 8 : 4;
     });
 
     new Chart(revenueCtx, {
         type: 'line',
         data: {
-            labels: hourLabels,
+            labels: dayLabels,
             datasets: [{
-                label: 'Doanh thu theo giờ (VNĐ)',
+                label: 'Doanh thu theo ngày (VNĐ)',
                 data: revenueData,
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59, 130, 246, 0.2)',
@@ -409,7 +488,7 @@ if(!isset($admin_id)){
                 pointRadius: pointRadius,
                 pointHoverRadius: 8,
                 pointBackgroundColor: pointColors,
-                pointBorderColor: pointBorderColors,
+                pointBorderColor: '#ffffff',
                 pointBorderWidth: 3
             }]
         },
@@ -434,19 +513,13 @@ if(!isset($admin_id)){
                     borderWidth: 1,
                     callbacks: {
                         title: function(context) {
-                            const hour = context[0].label;
-                            const isCurrentHour = context[0].dataIndex === currentHour;
-                            return hour + (isCurrentHour ? ' ⭐' : '');
+                            const day = context[0].label;
+                            const isCurrent = context[0].dataIndex === currentDayIndex;
+                            return day + (isCurrent ? ' (Hôm nay)' : '');
                         },
                         label: function(context) {
                             const value = new Intl.NumberFormat('vi-VN').format(context.parsed.y);
                             return 'Doanh thu: ' + value + ' VNĐ';
-                        },
-                        afterLabel: function(context) {
-                            if (context.dataIndex === currentHour) {
-                                return '🕐 Giờ hiện tại';
-                            }
-                            return '';
                         }
                     }
                 }
@@ -478,24 +551,15 @@ if(!isset($admin_id)){
                     },
                     ticks: {
                         color: function(context) {
-                            // Làm nổi bật nhãn giờ hiện tại
-                            return context.index === currentHour ? '#ff6b6b' : '#6b7280';
+                            return context.index === currentDayIndex ? '#ff6b6b' : '#6b7280';
                         },
                         font: {
-                            size: 10,
+                            size: 11,
                             weight: function(context) {
-                                return context.index === currentHour ? 'bold' : 'normal';
+                                return context.index === currentDayIndex ? 'bold' : 'normal';
                             }
                         },
-                        maxTicksLimit: 12,
-                        callback: function(value, index) {
-                            // Hiển thị tất cả nhãn nhưng làm nổi bật giờ hiện tại
-                            const label = this.getLabelForValue(value);
-                            if (index === currentHour) {
-                                return '⭐ ' + label.replace(' (Hiện tại)', '');
-                            }
-                            return index % 2 === 0 ? label : '';
-                        }
+                        maxTicksLimit: 10
                     }
                 }
             },
@@ -511,6 +575,24 @@ if(!isset($admin_id)){
         location.reload();
     }, 300000); // 5 phút = 300000ms
     </script>
+    <script>
+    // AJAX loader cho phần Sản phẩm mới đặt
+    (function(){
+        const container = document.getElementById('recent-products-container');
+        const btn = document.getElementById('refresh-recent');
+        function loadRecent() {
+            fetch('recent_products_fragment.php')
+                .then(r => r.text())
+                .then(html => { container.innerHTML = html; })
+                .catch(err => { console.error(err); });
+        }
+        if (btn) btn.addEventListener('click', loadRecent);
+        // load once on page load to ensure fresh data
+        loadRecent();
+    })();
+    </script>
+
+    
 
 </body>
 
