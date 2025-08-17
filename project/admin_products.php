@@ -5,6 +5,7 @@ session_start();
 $admin_id = $_SESSION['admin_id'];
 if (!isset($admin_id)) {
    header('location:login.php');
+   exit();
 }
 
 // Thêm sản phẩm
@@ -37,6 +38,7 @@ if (isset($_GET['delete'])) {
    unlink('uploaded_img/' . $img['image']);
    mysqli_query($conn, "DELETE FROM products WHERE id='$id'");
    header('location:admin_products.php');
+   exit();
 }
 
 // Cập nhật sản phẩm
@@ -60,21 +62,24 @@ if (isset($_POST['update_product'])) {
    }
 
    header('location:admin_products.php');
+   exit();
 }
 
-    if (isset($_GET['per_page'])) {
-        $orders_per_page = (int)$_GET['per_page'];
-    } else {
-        $orders_per_page = 10; // Giá trị mặc định
-    }
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $start = ($page - 1) * $orders_per_page;
+/* ------------------- PHÂN TRANG ------------------- */
+$orders_per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
 
-    // Lấy tổng số sản phẩm
-    $total_products = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM products"));
-    // Lấy sản phẩm theo phân trang
-    $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $orders_per_page");
+$start = ($page - 1) * $orders_per_page;
+
+// Tổng số sản phẩm
+$total_products = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM products"));
+$total_pages = ceil($total_products / $orders_per_page);
+
+// Lấy sản phẩm theo trang
+$select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $orders_per_page");
 ?>
+
 
 
 <!DOCTYPE html>
@@ -294,6 +299,33 @@ if (isset($_POST['update_product'])) {
         font-size: 1.2rem;
     }
 
+    /* phân trang */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination a {
+        padding: 10px 16px;
+        background-color: #f1f1f1;
+        color: #333;
+        border-radius: 10px;
+        text-decoration: none;
+    }
+
+    .pagination a.active {
+        background-color: #2196f3;
+        color: white;
+        font-weight: bold;
+    }
+
+    .pagination a:hover {
+        background-color: #d5d5d5;
+    }
+
     @media (max-width: 768px) {
 
         .top-bar,
@@ -386,6 +418,24 @@ if (isset($_POST['update_product'])) {
                     <?php } ?>
                 </tbody>
             </table>
+            <!-- Phân trang -->
+            <div class="pagination">
+                <?php if ($page > 1): ?>
+                <a href="?page=<?php echo $page-1; ?>&per_page=<?php echo $orders_per_page; ?>">Trước</a>
+                <?php endif; ?>
+
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a href="?page=<?php echo $i; ?>&per_page=<?php echo $orders_per_page; ?>"
+                    class="<?php echo ($i == $page) ? 'active' : ''; ?>">
+                    <?php echo $i; ?>
+                </a>
+                <?php endfor; ?>
+
+                <?php if ($page < $total_pages): ?>
+                <a href="?page=<?php echo $page+1; ?>&per_page=<?php echo $orders_per_page; ?>">Sau</a>
+                <?php endif; ?>
+            </div>
+
         </section>
 
         <?php if (isset($_GET['update'])):
@@ -404,6 +454,8 @@ if (isset($_POST['update_product'])) {
                 <a href="admin_products.php" id="close-update" class="btn">Hủy</a>
             </form>
         </section>
+
+
         <?php endif; ?>
     </div>
 

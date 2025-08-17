@@ -374,6 +374,10 @@ section{
    height: 25rem;
    width: 25rem;
    border-radius: 12px;    /* Sửa lại bo góc */
+   display: block; /* đảm bảo img được hiển thị như block để không có khoảng trắng */
+   object-fit: cover; /* giữ tỉ lệ và cắt vừa khung */
+   background-color: #f8f8f8; /* fallback khi ảnh chưa load */
+   overflow: hidden; /* tránh ảnh tràn ra ngoài khung bo góc */
 }
 .products .box-container .box:hover .image{
    box-shadow:
