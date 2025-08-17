@@ -6,8 +6,6 @@ session_start();
 
 $user_id = $_SESSION['user_id'];
 
-
-
 if(!isset($user_id)){
    header('location:login.php');
 }
@@ -16,7 +14,7 @@ if(isset($_POST['update_cart'])){
    $cart_id = $_POST['cart_id'];
    $cart_quantity = $_POST['cart_quantity'];
    mysqli_query($conn, "UPDATE `cart` SET quantity = '$cart_quantity' WHERE id = '$cart_id'") or die('query failed');
-   $message[] = 'số lượng giỏ hàng đã được cập nhật!';
+//    $message[] = 'số lượng giỏ hàng đã được cập nhật!';
 }
 
 if(isset($_GET['delete'])){
@@ -30,6 +28,25 @@ if(isset($_GET['delete_all'])){
    header('location:cart.php');
 }
 
+if(isset($_POST['update_cart'])){
+    $update_quantity = $_POST['cart_quantity'];
+    $update_id = $_POST['cart_id'];
+
+    // Lấy thông tin sản phẩm và tồn kho hiện tại
+    $select_product = mysqli_query($conn, "SELECT name, stock FROM `products` WHERE name = (SELECT name FROM `cart` WHERE id = '$update_id')") or die('query failed');
+    $fetch_product = mysqli_fetch_assoc($select_product);
+    $product_name = $fetch_product['name'];
+    $product_stock = $fetch_product['stock'];
+
+    // Kiểm tra số lượng cập nhật có lớn hơn tồn kho không
+    if($update_quantity > $product_stock){
+        $message[] = 'Sản phẩm ' . $product_name . ' chỉ còn ' . $product_stock . ' sản phẩm trong kho!';
+    } else {
+        // Nếu số lượng hợp lệ, cập nhật giỏ hàng
+        mysqli_query($conn, "UPDATE `cart` SET quantity = '$update_quantity' WHERE id = '$update_id'") or die('query failed');
+        $message[] = 'Giỏ hàng đã được cập nhật!';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -107,13 +124,6 @@ if(isset($_GET['delete_all'])){
 
 
     </section>
-
-
-
-
-
-
-
 
     <?php include 'footer.php'; ?>
 

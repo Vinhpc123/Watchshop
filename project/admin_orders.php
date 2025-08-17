@@ -13,8 +13,32 @@ if (!isset($admin_id)) {
 if (isset($_POST['update_order'])) {
     $order_update_id = $_POST['order_id'];
     $update_payment = $_POST['update_payment'];
+
+    // Lấy thông tin đơn hàng cũ để so sánh trạng thái
+    $select_old_order = mysqli_query($conn, "SELECT payment_status, total_products FROM `orders` WHERE id = '$order_update_id'");
+    $old_order_data = mysqli_fetch_assoc($select_old_order);
+    $old_payment_status = $old_order_data['payment_status'];
+
+    // Cập nhật trạng thái mới cho đơn hàng
     mysqli_query($conn, "UPDATE `orders` SET payment_status = '$update_payment' WHERE id = '$order_update_id'") or die('query failed');
     $message[] = 'Trạng thái thanh toán đã được cập nhật!';
+    
+    // Nếu trạng thái đơn hàng được chuyển sang 'Thành công' từ 'Đang duyệt'
+    if ($old_payment_status == 'Đang duyệt' && $update_payment == 'Thành công') {
+        $total_products_string = $old_order_data['total_products'];
+        
+        // Phân tích chuỗi sản phẩm để lấy tên và số lượng
+        preg_match_all('/, (.*?)\s\((\d+)\)/', $total_products_string, $matches, PREG_SET_ORDER);
+        
+        // Cập nhật stock và sold cho từng sản phẩm
+        foreach ($matches as $match) {
+            $product_name = mysqli_real_escape_string($conn, trim($match[1]));
+            $quantity = (int)$match[2];
+
+            // Cập nhật sản phẩm trong bảng products
+            mysqli_query($conn, "UPDATE `products` SET stock = stock - '$quantity', sold = sold + '$quantity' WHERE name = '$product_name'") or die('query failed');
+        }
+    }
 }
 
 // Xóa đơn hàng

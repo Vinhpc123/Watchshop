@@ -5,7 +5,6 @@ session_start();
 $admin_id = $_SESSION['admin_id'];
 if (!isset($admin_id)) {
    header('location:login.php');
-   exit();
 }
 
 // Thêm sản phẩm
@@ -38,8 +37,8 @@ if (isset($_GET['delete'])) {
    unlink('uploaded_img/' . $img['image']);
    mysqli_query($conn, "DELETE FROM products WHERE id='$id'");
    header('location:admin_products.php');
-   exit();
 }
+
 
 // Cập nhật sản phẩm
 if (isset($_POST['update_product'])) {
@@ -60,26 +59,18 @@ if (isset($_POST['update_product'])) {
          unlink('uploaded_img/' . $old_img);
       }
    }
-
    header('location:admin_products.php');
-   exit();
 }
 
-/* ------------------- PHÂN TRANG ------------------- */
-$orders_per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
-
-$start = ($page - 1) * $orders_per_page;
-
-// Tổng số sản phẩm
-$total_products = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM products"));
-$total_pages = ceil($total_products / $orders_per_page);
-
-// Lấy sản phẩm theo trang
-$select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $orders_per_page");
+// Logic tìm kiếm sản phẩm
+$search_query = "";
+if (isset($_GET['search'])) {
+    $search_query = mysqli_real_escape_string($conn, $_GET['search']);
+    $select_products = mysqli_query($conn, "SELECT * FROM products WHERE name LIKE '%$search_query%'");
+} else {
+    $select_products = mysqli_query($conn, "SELECT * FROM products");
+}
 ?>
-
 
 
 <!DOCTYPE html>
@@ -262,7 +253,7 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
     }
 
     .option-btn,
-    .delete-btn1 {
+    .delete-btn {
         padding: 8px 12px;
         border-radius: 6px;
         font-size: 1.4rem;
@@ -276,8 +267,8 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
         background-color: #2980b9;
     }
 
-    .delete-btn1 {
-        background-color: var(--red);
+    .delete-btn {
+        background-color: #e74c3c;
     }
 
     .edit-product-form img {
@@ -297,33 +288,6 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
     .add-btn,
     .custom-btn {
         font-size: 1.2rem;
-    }
-
-    /* phân trang */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .pagination a {
-        padding: 10px 16px;
-        background-color: #f1f1f1;
-        color: #333;
-        border-radius: 10px;
-        text-decoration: none;
-    }
-
-    .pagination a.active {
-        background-color: #2196f3;
-        color: white;
-        font-weight: bold;
-    }
-
-    .pagination a:hover {
-        background-color: #d5d5d5;
     }
 
     @media (max-width: 768px) {
@@ -365,29 +329,28 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
         <section class="product-list">
             <div class="top-bar">
                 <h2>Danh sách sản phẩm</h2>
-                <div class="actions">
+                <!-- <div class="actions">
                     <button class="custom-btn">Nút tùy chỉnh</button>
                     <a href="#add" class="add-btn">+ Thêm sản phẩm</a>
-                </div>
+                </div> -->
             </div>
 
             <div class="filter-bar">
                 <div class="filter-left">
-                    <form method="get" style="display:inline;">
-                        <label for="per-page">Hiển thị:</label>
-                        <select id="per-page" name="per_page" onchange="this.form.submit()">
-                            <option value="5" <?php if ($orders_per_page == 5) echo 'selected'; ?>>5</option>
-                            <option value="10" <?php if ($orders_per_page == 10) echo 'selected'; ?>>10</option>
-                            <option value="20" <?php if ($orders_per_page == 20) echo 'selected'; ?>>20</option>
-                            <option value="50" <?php if ($orders_per_page == 50) echo 'selected'; ?>>50</option>
-                        </select>
-                        <!-- Giữ tham số page nếu có -->
-                        <?php if (isset($_GET['page'])): ?>
-                        <input type="hidden" name="page" value="<?php echo (int)$_GET['page']; ?>">
-                        <?php endif; ?>
-                    </form>
+                    <label for="per-page">Hiển thị:</label>
+                    <select id="per-page" name="per_page">
+                        <option>10</option>
+                        <option selected>20</option>
+                        <option>50</option>
+                    </select>
                 </div>
-                <span>Tìm thấy <?php echo $total_products; ?> sản phẩm</span>
+                <div class="search-bar">
+                    <input type="text" id="search-product" placeholder="Tìm kiếm sản phẩm..." onkeyup="searchProduct()">
+                </div>
+                <?php
+                  $select_products = mysqli_query($conn, "SELECT * FROM products");
+                ?>
+                <span>Tìm thấy <?php echo mysqli_num_rows($select_products); ?> sản phẩm</span>
             </div>
 
             <table class="product-table">
@@ -397,6 +360,8 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
                         <th>Ảnh</th>
                         <th>Tên</th>
                         <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Đã bán</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -408,34 +373,18 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
                         <td><img src="uploaded_img/<?php echo $row['image']; ?>" class="thumb" alt=""></td>
                         <td><?php echo $row['name']; ?></td>
                         <td><?php echo number_format($row['price'], 0, ',', '.'); ?> VNĐ</td>
+                        <td><?php echo number_format($row['stock'], 0, ',', '.'); ?></td>
+                        <td><?php echo number_format($row['sold'], 0, ',', '.'); ?></td>
                         <td><span class="status enabled">Hiện</span></td>
                         <td>
                             <a href="admin_products.php?update=<?php echo $row['id']; ?>" class="option-btn">Sửa</a>
-                            <a href="admin_products.php?delete=<?php echo $row['id']; ?>" class="delete-btn1"
+                            <a href="admin_products.php?delete=<?php echo $row['id']; ?>" class="delete-btn"
                                 onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                     <?php } ?>
                 </tbody>
             </table>
-            <!-- Phân trang -->
-            <div class="pagination">
-                <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page-1; ?>&per_page=<?php echo $orders_per_page; ?>">Trước</a>
-                <?php endif; ?>
-
-                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a href="?page=<?php echo $i; ?>&per_page=<?php echo $orders_per_page; ?>"
-                    class="<?php echo ($i == $page) ? 'active' : ''; ?>">
-                    <?php echo $i; ?>
-                </a>
-                <?php endfor; ?>
-
-                <?php if ($page < $total_pages): ?>
-                <a href="?page=<?php echo $page+1; ?>&per_page=<?php echo $orders_per_page; ?>">Sau</a>
-                <?php endif; ?>
-            </div>
-
         </section>
 
         <?php if (isset($_GET['update'])):
@@ -449,18 +398,37 @@ $select_products = mysqli_query($conn, "SELECT * FROM products LIMIT $start, $or
                 <img id="preview" src="uploaded_img/<?php echo $data['image']; ?>" alt="">
                 <input type="text" name="update_name" value="<?php echo $data['name']; ?>" class="box" required>
                 <input type="number" name="update_price" value="<?php echo $data['price']; ?>" class="box" required>
+                <input type="number" name="update_stock" value="<?php echo $data['stock']; ?>" class="box" required>
+                <input type="number" name="update_sold" value="<?php echo $data['sold']; ?>" class="box" required
+                    readonly>
                 <input type="file" name="update_image" accept="image/*" class="box" onchange="previewImage(event)">
                 <input type="submit" name="update_product" value="Cập nhật sản phẩm" class="btn">
                 <a href="admin_products.php" id="close-update" class="btn">Hủy</a>
             </form>
         </section>
-
-
         <?php endif; ?>
     </div>
 
     <script src="js/admin_script.js"></script>
     <script>
+    function searchProduct() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search-product");
+        filter = input.value.toUpperCase();
+        table = document.querySelector(".product-table tbody");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2]; // Lấy cột "Tên"
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
     document.querySelector('#close-update').onclick = () => {
         document.querySelector('.edit-product-form').style.display = 'none';
         window.location.href = 'admin_products.php';
