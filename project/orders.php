@@ -206,7 +206,9 @@ if (isset($_SESSION['user_id'])) {
         <h1 class="title">Đơn đặt hàng</h1>
         <div class="order-container">
             <?php
-            $order_query = mysqli_query($conn, "SELECT * FROM `orders` WHERE user_id = '$user_id' ORDER BY id DESC") or die('query failed');
+            $order_query = mysqli_query(
+                $conn,"SELECT * FROM `orders` WHERE user_id = '$user_id' AND order_type = 'online' ORDER BY id DESC") or die('query failed');
+
             if (mysqli_num_rows($order_query) > 0) {
                 while ($fetch_orders = mysqli_fetch_assoc($order_query)) {
             ?>

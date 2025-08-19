@@ -657,33 +657,20 @@ if(!isset($admin_id)){
     function processOrder() {
         if (cart.length === 0) return;
 
-        const customerId = null;
-        const customerName = 'Khách lẻ';
-        const paymentMethod = document.getElementById('paymentMethod').value;
-
         const order = {
-            id: Date.now(), // ID tạm thời, sẽ được server trả lại ID chính xác
-            customerId,
-            customerName,
+            customerId: null,
+            customerName: 'Khách lẻ',
+            customerNumber: 'N/A',
+            customerEmail: 'N/A',
+            customerAddress: 'Mua tại cửa hàng',
+            paymentMethod: document.getElementById('paymentMethod').value === 'transfer' ? 'Chuyển khoản' :
+                'Tiền mặt',
             date: new Date().toISOString(),
             items: [...cart],
-            total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-            paymentMethod,
+            total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
             status: 'completed'
         };
 
-        // Cập nhật kho
-        cart.forEach(item => {
-            const product = products.find(p => p.id === item.id);
-            if (product) {
-                product.stock -= item.quantity;
-                product.sold = (product.sold || 0) + item.quantity;
-            }
-        });
-
-        saveData();
-
-        // Gửi order sang PHP để lưu vào CSDL
         fetch('add_order_pos.php', {
                 method: 'POST',
                 headers: {
@@ -691,25 +678,29 @@ if(!isset($admin_id)){
                 },
                 body: JSON.stringify(order)
             })
-            .then(res => res.json()) // parse JSON trả về
-            .then(data => {
-                if (data.error) {
-                    console.error(data.error);
-                    showNotification('Lưu đơn hàng thất bại!', 'error');
-                    return;
+            .then(async (res) => {
+                const text = await res.text(); // nhận raw text
+                let data;
+                try {
+                    data = JSON.parse(text); // thử parse JSON
+                } catch (e) {
+                    console.error('Raw response (not JSON):', text);
+                    throw new Error('NON_JSON_RESPONSE');
                 }
-
-                // Dùng dữ liệu đơn hàng trả về từ server, có ID chính xác
-                orders.push(data);
-
-                // In hóa đơn ngay với ID thật
-                printInvoice(data.id);
-
-                // Clear giỏ hàng và load lại
+                if (!data.success) {
+                    console.error('Server error:', data);
+                    throw new Error(data.error || 'SAVE_FAILED');
+                }
+                // thành công
+                orders.push({
+                    id: data.order_id,
+                    ...order,
+                    date: new Date().toISOString()
+                });
+                printInvoice(data.order_id);
                 cart = [];
                 updateCartDisplay();
                 loadPOSProducts();
-
                 showNotification('Đã tạo đơn hàng thành công!');
             })
             .catch(err => {
@@ -796,7 +787,6 @@ if(!isset($admin_id)){
         });
 
         doc.save(`invoice-${order.id}.pdf`);
-        showNotification('PDF invoice has been generated');
     }
 
 
