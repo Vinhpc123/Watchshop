@@ -44,10 +44,39 @@ if (isset($_POST['update_order'])) {
 // Xóa đơn hàng
 if (isset($_GET['delete'])) {
     $delete_id = $_GET['delete'];
-    mysqli_query($conn, "DELETE FROM `orders` WHERE id = '$delete_id'") or die('query failed');
+
+    // Lấy thông tin đơn hàng trước khi xóa
+    $select_order = mysqli_query($conn, "SELECT payment_status, total_products FROM `orders` WHERE id = '$delete_id'") or die('query failed');
+    $order_data = mysqli_fetch_assoc($select_order);
+
+    if ($order_data) {
+        $payment_status = $order_data['payment_status'];
+        $total_products_string = $order_data['total_products'];
+
+        // Nếu đơn đã được xác nhận "Thành công" thì rollback stock và sold
+        if ($payment_status == 'Thành công') {
+            // Tách tên sản phẩm + số lượng từ chuỗi
+            preg_match_all('/, (.*?)\s\((\d+)\)/', $total_products_string, $matches, PREG_SET_ORDER);
+
+            foreach ($matches as $match) {
+                $product_name = mysqli_real_escape_string($conn, trim($match[1]));
+                $quantity = (int)$match[2];
+
+                // Cộng lại stock, trừ sold
+                mysqli_query($conn, "UPDATE `products` 
+                                     SET stock = stock + $quantity, sold = sold - $quantity 
+                                     WHERE name = '$product_name'") or die('query failed');
+            }
+        }
+
+        // Xóa đơn hàng
+        mysqli_query($conn, "DELETE FROM `orders` WHERE id = '$delete_id'") or die('query failed');
+    }
+
     header('location:admin_orders.php');
     exit();
 }
+
 
 // Lấy giá trị tìm kiếm
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';

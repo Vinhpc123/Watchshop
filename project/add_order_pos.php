@@ -3,7 +3,7 @@ require 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ❗ ĐỪNG in warning/notice ra output vì sẽ phá JSON
+// ❗ Không in warning ra output vì sẽ phá JSON
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/pos_error.log');
@@ -45,6 +45,7 @@ $placed_on      = date('Y-m-d');        // bảng của bạn là DATE
 $payment_status = 'Thành công';
 $order_type     = 'pos';
 
+// ✅ 1. Lưu đơn hàng
 $stmt = $conn->prepare("
     INSERT INTO orders
         (user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status, order_type)
@@ -73,16 +74,58 @@ $stmt->bind_param(
     $order_type
 );
 
-if ($stmt->execute()) {
-    echo json_encode([
-        'success'   => true,
-        'message'   => 'Đơn POS đã lưu',
-        'order_id'  => $stmt->insert_id
-    ], JSON_UNESCAPED_UNICODE);
-} else {
+if (!$stmt->execute()) {
     error_log('Execute failed: ' . $stmt->error);
     echo json_encode(['success' => false, 'error' => 'EXECUTE_FAILED']);
+    $stmt->close();
+    $conn->close();
+    exit;
 }
 
+$order_id = $stmt->insert_id;
 $stmt->close();
+
+// ✅ 2. Lưu chi tiết sản phẩm & trừ kho
+$itemStmt = $conn->prepare("
+    INSERT INTO order_items (order_id, product_id, quantity, price)
+    VALUES (?, ?, ?, ?)
+");
+$updateStockStmt = $conn->prepare("
+    UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?
+");
+
+if (!$itemStmt || !$updateStockStmt) {
+    error_log('Prepare item/stock failed: ' . $conn->error);
+    echo json_encode(['success' => false, 'error' => 'PREPARE_DETAIL_FAILED']);
+    $conn->close();
+    exit;
+}
+
+foreach ($data['items'] as $item) {
+    $pid  = (int)$item['id'];
+    $qty  = (int)$item['quantity'];
+    $price = (float)$item['price'];
+
+    // Lưu chi tiết đơn hàng
+    $itemStmt->bind_param("iiid", $order_id, $pid, $qty, $price);
+    if (!$itemStmt->execute()) {
+        error_log("Insert order item failed: " . $itemStmt->error);
+    }
+
+    // Trừ tồn kho (chỉ trừ nếu còn đủ hàng)
+    $updateStockStmt->bind_param("iii", $qty, $pid, $qty);
+    if (!$updateStockStmt->execute()) {
+        error_log("Update stock failed for product $pid: " . $updateStockStmt->error);
+    }
+}
+
+$itemStmt->close();
+$updateStockStmt->close();
+
 $conn->close();
+
+echo json_encode([
+    'success'   => true,
+    'message'   => 'Đơn POS đã lưu và cập nhật tồn kho',
+    'order_id'  => $order_id
+], JSON_UNESCAPED_UNICODE);

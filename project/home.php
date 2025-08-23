@@ -9,7 +9,7 @@ $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
 if (isset($_POST['add_to_cart'])) {
 
-    // If user is not logged in, redirect to login page
+    // Nếu chưa đăng nhập thì chuyển hướng
     if ($user_id === null) {
         header('Location: login.php');
         exit();
@@ -20,19 +20,32 @@ if (isset($_POST['add_to_cart'])) {
     $product_image = mysqli_real_escape_string($conn, $_POST['product_image']);
     $product_quantity = (int)$_POST['product_quantity'];
 
-    $check_cart_numbers = mysqli_query($conn, "SELECT * FROM `cart` WHERE name = '$product_name' AND user_id = '$user_id'") or die('query failed');
+    // Lấy số lượng tồn kho từ bảng products
+    $check_stock = mysqli_query($conn, "SELECT stock FROM `products` WHERE name = '$product_name' LIMIT 1") or die(mysqli_error($conn));
+    $stock_data = mysqli_fetch_assoc($check_stock);
+    $available_stock = (int)$stock_data['stock'];
 
-    if (mysqli_num_rows($check_cart_numbers) > 0) {
-        $_SESSION['cart_message'] = 'Sản phẩm đã được thêm vào giỏ hàng!';
+
+    if ($product_quantity > $available_stock) {
+        $_SESSION['cart_message'] = "Số lượng bạn chọn vượt quá số lượng tồn kho! (Còn lại $available_stock sản phẩm)";
     } else {
-        mysqli_query($conn, "INSERT INTO `cart`(user_id, name, price, quantity, image) VALUES('$user_id', '$product_name', '$product_price', '$product_quantity', '$product_image')") or die('query failed');
-        $_SESSION['cart_message'] = 'Sản phẩm đã được thêm vào giỏ hàng!';
+        // Kiểm tra sản phẩm đã có trong giỏ chưa
+        $check_cart_numbers = mysqli_query($conn, "SELECT * FROM `cart` WHERE name = '$product_name' AND user_id = '$user_id'") or die('query failed');
+
+        if (mysqli_num_rows($check_cart_numbers) > 0) {
+            $_SESSION['cart_message'] = 'Sản phẩm đã có trong giỏ hàng!';
+        } else {
+            mysqli_query($conn, "INSERT INTO `cart`(user_id, name, price, quantity, image) 
+                                 VALUES('$user_id', '$product_name', '$product_price', '$product_quantity', '$product_image')") or die('query failed');
+            $_SESSION['cart_message'] = 'Sản phẩm đã được thêm vào giỏ hàng!';
+        }
     }
 
-    // Redirect to the same page to display message
+    // Redirect để hiển thị alert
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
 }
+
 
 ?>
 

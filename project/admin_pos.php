@@ -453,20 +453,21 @@ if(!isset($admin_id)){
 
     <?php
     $products_arr = [];
-    $select_products = mysqli_query($conn, "SELECT id, name, price, image FROM products") or die('Query failed');
+    $select_products = mysqli_query($conn, "SELECT id, name, price, stock, image FROM products") or die('query failed');
     while ($row = mysqli_fetch_assoc($select_products)) {
         $products_arr[] = [
             'id' =>  $row['id'],
             'name' => $row['name'],
             'category' => 'other',
             'price' => (float)$row['price'],
-            'stock' => 50,
+            'stock' => (int)$row['stock'], // ✅ lấy từ DB
             'threshold' => 3,
             'description' => '',
             'sold' => 0,
             'image' => $row['image'] // không còn lỗi undefined
         ];
     }
+    
     $users_arr = [];
     $select_users = mysqli_query($conn, "SELECT id, name, email FROM users") or die('Query failed');
     while ($row = mysqli_fetch_assoc($select_users)) {

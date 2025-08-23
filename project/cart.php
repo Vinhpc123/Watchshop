@@ -38,15 +38,45 @@ if(isset($_POST['update_cart'])){
     $product_name = $fetch_product['name'];
     $product_stock = $fetch_product['stock'];
 
-    // Kiểm tra số lượng cập nhật có lớn hơn tồn kho không
     if($update_quantity > $product_stock){
-        $message[] = 'Sản phẩm ' . $product_name . ' chỉ còn ' . $product_stock . ' sản phẩm trong kho!';
+        // Giới hạn về tồn kho
+        mysqli_query($conn, "UPDATE `cart` SET quantity = '$product_stock' WHERE id = '$update_id'") or die('query failed');
+        $message[] = 'Sản phẩm ' . $product_name . ' chỉ còn ' . $product_stock . ' sản phẩm trong kho! 
+        Giỏ hàng đã được điều chỉnh về số lượng tối đa.';
     } else {
-        // Nếu số lượng hợp lệ, cập nhật giỏ hàng
         mysqli_query($conn, "UPDATE `cart` SET quantity = '$update_quantity' WHERE id = '$update_id'") or die('query failed');
         $message[] = 'Giỏ hàng đã được cập nhật!';
     }
+
 }
+
+//xử lý khi nhập số lượng sản phẩm
+if(isset($_POST['proceed_checkout'])){
+    $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
+    $error = false;
+
+    while($fetch_cart = mysqli_fetch_assoc($select_cart)){
+        $product_name = $fetch_cart['name'];
+        $quantity = $fetch_cart['quantity'];
+
+        // Lấy tồn kho
+        $check_stock = mysqli_query($conn, "SELECT stock FROM `products` WHERE name = '$product_name'") or die('query failed');
+        $product_data = mysqli_fetch_assoc($check_stock);
+        $stock = $product_data['stock'];
+
+        if($quantity > $stock){
+            $message[] = '❌ Sản phẩm "' . $product_name . '" chỉ còn ' . $stock . ' sản phẩm trong kho. Vui lòng chỉnh lại số lượng!';
+            $error = true;
+        }
+    }
+
+    // Nếu không có lỗi thì cho qua checkout
+    if(!$error){
+        header('Location: checkout.php');
+        exit();
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -66,22 +96,18 @@ if(isset($_POST['update_cart'])){
 </head>
 
 <body>
-
     <?php include 'header.php'; ?>
-
-
-
     <section class="shopping-cart">
 
         <h1 class="title">Sản phẩm được thêm</h1>
 
         <div class="box-container">
             <?php
-         $grand_total = 0;
-         $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
-         if(mysqli_num_rows($select_cart) > 0){
-            while($fetch_cart = mysqli_fetch_assoc($select_cart)){   
-      ?>
+                $grand_total = 0;
+                $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
+                if(mysqli_num_rows($select_cart) > 0){
+                    while($fetch_cart = mysqli_fetch_assoc($select_cart)){   
+            ?>
             <div class="box">
                 <a href="cart.php?delete=<?php echo $fetch_cart['id']; ?>" class="fas fa-times"
                     onclick="return confirm('Bạn muốn gỡ sản phẩm này?');"></a>
@@ -101,12 +127,12 @@ if(isset($_POST['update_cart'])){
 
             </div>
             <?php
-      $grand_total += $sub_total;
-         }
-      }else{
-         echo '<p class="empty">Giỏ hàng đang trống!</p>';
-      }
-      ?>
+                $grand_total += $sub_total;
+                    }
+                }else{
+                    echo '<p class="empty">Giỏ hàng đang trống!</p>';
+                }
+            ?>
         </div>
 
         <div style="margin-top: 2rem; text-align:center;">
@@ -118,7 +144,10 @@ if(isset($_POST['update_cart'])){
             <p>Tổng: <span><?php echo number_format($grand_total, 0, ',', '.'); ?> VNĐ</span></p>
             <div class="flex">
                 <a href="shop.php" class="option-btn">Tiếp tục mua sắm</a>
-                <a href="checkout.php" class="btn <?php echo ($grand_total > 1) ? '' : 'disabled'; ?>">Thanh toán</a>
+                <form method="post" style="display:inline;">
+                    <input type="submit" name="proceed_checkout" value="Thanh toán"
+                        class="btn <?php echo ($grand_total > 0) ? '' : 'disabled'; ?>">
+                </form>
             </div>
         </div>
 

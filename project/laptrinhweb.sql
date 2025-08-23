@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th8 02, 2025 lúc 11:36 AM
+-- Thời gian đã tạo: Th8 23, 2025 lúc 03:55 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.0.30
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `laptrinhweb`
+-- Cơ sở dữ liệu: `laptrinhweb`
 --
 
 -- --------------------------------------------------------
@@ -51,18 +51,10 @@ CREATE TABLE `message` (
   `message` varchar(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Đang đổ dữ liệu cho bảng `message`
---
-
-INSERT INTO `message` (`id`, `user_id`, `name`, `email`, `number`, `message`) VALUES
-(34, 11, 'TRẦN THANH VINH', 'vinh7085@gmail.com', '0355367829', '1'),
-(36, 11, 'TRẦN THANH VINH', 'vinh7085@gmail.com', '0355367829', '.table-container {\r\n    width: 95%;\r\n    max-width: 1200px;\r\n    margin: auto;\r\n    overflow-x: auto;\r\n    background: #fff;\r\n    padding: 24px;\r\n    border-radius: 12px;\r\n    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);\r\n}\r\n\r\n.messages-table {\r\n    width: 100%;\r\n    border-collapse: collapse;\r\n    font-size: 1rem;\r\n    text-align: center;\r\n}\r\n\r\n.messages-table th,\r\n.messages-table td {\r\n    padding: 14px 12px;\r\n    border-bottom: 1px solid #ddd;\r\n}\r\n\r\n.messages-table th {\r\n    background-color: ');
-
 -- --------------------------------------------------------
 
 --
--- Table structure for table `orders`
+-- Cấu trúc bảng cho bảng `orders`
 --
 
 CREATE TABLE `orders` (
@@ -81,18 +73,35 @@ CREATE TABLE `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `orders`
+-- Đang đổ dữ liệu cho bảng `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `name`, `number`, `email`, `method`, `address`, `total_products`, `total_price`, `placed_on`, `payment_status`) VALUES
-(37, 11, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', 'Việt Nam, 524244, Ho Chi Minh, Việt Nam', ', Patek 1992 (1) ', 212000, '2025-08-01', 'Thành công'),
-(38, 11, 'TRẦN VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '4234, 70 TO KY, QUAN 12, TP HCM, HCM, Việt Nam', ', TRẦN THANH VINH (1) , Patek 1992 (1155155) ', 2147483647, '2025-08-01', 'Thành công'),
-(39, 11, 'pham nguyen', '0355367829', 'vinh93170@gmail.com', 'Thanh toán khi giao hàng', '30/6a, 70 TO KY, QUAN 12, TP HCM, HCM, Việt Nam', ', TRẦN THANH VINH (3) ', 300000, '2025-08-01', 'Thành công'),
-(40, 11, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', 'Việt Nam, 524244, Ho Chi Minh, Việt Nam', ', ss f4 (1) ', 23123123, '0000-00-00', 'Thành công'),
-(41, 14, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '1, 524244, Ho Chi Minh, Việt Nam', ', Titoni Airmaster  (1) ', 2147483647, '0000-00-00', 'Thành công'),
-(43, 11, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', 'Việt Nam, Tân thới hiệp 15 - quận 12, Ho Chi Minh, Việt Nam', ', adya (1) ', 1523232323, '0000-00-00', 'Thành công'),
-(44, 11, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', 'ư4234, 524244, Ho Chi Minh, Việt Nam', ', ss f4 (1) ', 23123123, '0000-00-00', 'Thành công'),
-(45, 11, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'ATM', '5, 524244, Ho Chi Minh, Việt Nam', ', ss f4 (1) ', 23123123, '0000-00-00', 'Thành công');
+INSERT INTO `orders` (`id`, `user_id`, `name`, `number`, `email`, `method`, `address`, `total_products`, `total_price`, `placed_on`, `payment_status`, `order_type`) VALUES
+(6, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '123, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', KOI Sheen K004.153.64.14.53.11.05 (1) , Casio MTP-1384L-1AVDF (1) ', 6344000, '2025-08-19', 'Thành công', 'online'),
+(9, 1, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '12, 524244, Ho Chi Minh, Việt Nam', ', Titoni Airmaster 93709 SY-385 (1) ', 40900000, '2025-08-19', 'Thành công', 'online'),
+(25, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Cosmo King 797 S-719 (1), Titoni Cosmo King 797 SY-695 (1)', 79110000, '2025-08-19', 'Thành công', 'pos'),
+(26, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Airmaster 93709 SY-385 (1), Orient RA-AS0106L30B  (1)', 56900000, '2025-08-19', 'Thành công', 'pos'),
+(27, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '123, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', Casio MTP-1384L-1AVDF (1) , Titoni Cosmo King 797 (6) ', 223744000, '2025-08-19', 'Thành công', 'online'),
+(28, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Cosmo King 797 S-719 (1), Titoni Cosmo King 797 SY-695 (1)', 79110000, '2025-08-19', 'Thành công', 'pos'),
+(29, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Orient RA-AS0106L30B  (1), Titoni Airmaster 93709 SY-385 (1)', 56900000, '2025-08-19', 'Thành công', 'pos'),
+(30, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Airmaster 93709 SY-385 (1)', 40900000, '2025-08-19', 'Thành công', 'pos'),
+(31, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Orient RA-AS0106L30B  (1)', 16000000, '2025-08-19', 'Thành công', 'pos'),
+(32, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Cosmo King 797 S-719 (1)', 38380000, '2025-08-19', 'Thành công', 'pos'),
+(33, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'KOI Moonphase K006.436.65 (1), Seiko 5 Sports Field SRPJ87K1 (3), Titoni Cosmo Queen 729 G-DB-541 (1), Koi Đôi K005.303.092.05.01.03 (1)', 79300000, '2025-08-19', 'Thành công', 'pos'),
+(34, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Airmaster 93709 SY-385 (1)', 40900000, '2025-08-19', 'Thành công', 'pos'),
+(35, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Cosmo King 797 S-719 (1), Titoni Cosmo King 797 SY-695 (1)', 79110000, '2025-08-20', 'Thành công', 'pos'),
+(36, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '12a, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', Titoni Airmaster 93808 (1) ', 37700000, '2025-08-20', 'Thành công', 'online'),
+(37, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'KOI Sheen K004.153.64.14.53.11.05 (1), Doxa Noble D173TCM (1)', 53000000, '2025-08-20', 'Thành công', 'pos'),
+(38, 1, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '23423, 524244, Ho Chi Minh, Việt Nam', ', Orient RA-AS0105S30B (10) ', 168000000, '2025-08-20', 'Thành công', 'online'),
+(39, 1, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '123, 524244, Ho Chi Minh, Việt Nam', ', Orient RA-AS0105S30B (1) ', 16800000, '2025-08-20', 'Thành công', 'online'),
+(42, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Koi Đôi K005.303.092.05.01.03 (1), KOI Moonphase K006.436.65 (1), Titoni Cosmo King 797 (1)', 47180000, '2025-08-21', 'Thành công', 'pos'),
+(43, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Orient RA-AS0105S30B (20)', 336000000, '2025-08-21', 'Thành công', 'pos'),
+(44, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Orient RA-AS0105S30B (1), Titoni Airmaster 93808 (1)', 54500000, '2025-08-21', 'Thành công', 'pos'),
+(45, NULL, 'Khách lẻ', 'N/A', 'N/A', 'Tiền mặt', 'Mua tại cửa hàng', 'Titoni Airmaster 93709 SY-385 (1), Orient RA-AS0106L30B  (1), Titoni Cosmo King 797 SY-695 (1), Titoni Cosmo King 797 S-719 (1)', 136010000, '2025-08-23', 'Thành công', 'pos'),
+(46, 1, 'TRẦN THANH VINH', '0355367829', 'vinh7085@gmail.com', 'Thanh toán khi giao hàng', '2342, Tân thới hiệp 15 - quận 12, Ho Chi Minh, Việt Nam', ', Orient RA-AS0105S30B (1) ', 16800000, '2025-08-23', 'Thành công', 'online'),
+(50, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '2342, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', KOI Sheen K004.153.64.14.53.11.05 (100) ', 376000000, '2025-08-23', 'Thành công', 'online'),
+(52, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '30/6a, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', Orient RA-AS0105S30B (155) ', 2147483647, '2025-08-23', 'Thành công', 'online'),
+(54, 1, 'TRẦN THANH VINH', '0355367829', 'vinh38881@gmail.com', 'Thanh toán khi giao hàng', '23423, tân thới hiệp 15, quận 12, tp hcm, Hồ Chí Minh, Việt Nam', ', Casio MTP-1384L-1AVDF (22) ', 56848000, '2025-08-23', 'Thành công', 'online');
 
 -- --------------------------------------------------------
 
@@ -104,6 +113,8 @@ CREATE TABLE `products` (
   `id` int(100) NOT NULL,
   `name` varchar(100) NOT NULL,
   `price` int(100) NOT NULL,
+  `stock` int(100) NOT NULL DEFAULT 0,
+  `sold` int(100) NOT NULL DEFAULT 0,
   `image` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -111,18 +122,28 @@ CREATE TABLE `products` (
 -- Đang đổ dữ liệu cho bảng `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `price`, `image`) VALUES
-(22, 'TRẦN THANH VINH', 100000, 'Screenshot 2025-07-28 083836.png'),
-(27, 'adya', 1523232323, 'Screenshot 2025-07-28 083836.png'),
-(28, 'Titoni Airmaster ', 2147483647, 'Screenshot 2025-08-01 165919.png'),
-(29, 'ss f4', 23123123, 'Screenshot 2025-08-01 163513.png'),
-(30, 'Saga Stella 71836-SVWHBL-2 – Nữ', 1331313, 'Screenshot 2025-07-28 083836.png'),
-(31, 'blat', 16165165, 'Screenshot 2025-08-01 163513.png'),
-(32, '1', 23123123, 'Screenshot 2025-08-02 095659.png'),
-(33, '2', 123123123, 'Screenshot 2025-08-02 095712.png'),
-(34, '3', 213123213, 'Screenshot 2025-08-02 101237.png'),
-(35, '4', 312312312, 'mountain-night-aurora-borealis-digital-scenery-art-4k-wallpaper-uhdpaper.com-649@2@b.jpg'),
-(36, '7', 232423423, 'shinobu-kocho-insect-hashira-demon-slayer-kimetsu-no-yaiba-0-4k-wallpaper-3840x2160-uhdpaper.com-617');
+INSERT INTO `products` (`id`, `name`, `price`, `stock`, `sold`, `image`) VALUES
+(1, 'Orient RA-AS0105S30B', 16800000, 0, 155, '2-orient-sun-and-moon-ra-as0105s30b.avif'),
+(2, 'Orient RA-AS0106L30B ', 16000000, 87, 0, '3-orient-sun-and-moon-ra-as0106l30b.avif'),
+(3, 'Titoni Airmaster 93709 SY-385', 40900000, 120, 0, '3-titoni-airmaster-93709-sy-385.avif'),
+(4, 'Titoni Airmaster 93808', 37700000, 20, 0, '2-titoni-airmaster-93808-s-259.avif'),
+(5, 'Titoni Cosmo King 797 SY-695', 40730000, 60, 0, '3-titoni-cosmo-king-797-sy-695.avif'),
+(6, 'Titoni Cosmo King 797 S-719', 38380000, 60, 0, '3-titoni-cosmo-king-797-s-719.avif'),
+(7, 'Titoni Cosmo King 797', 36860000, 20, 0, '1-titoni-cosmo-king-797797-s-696.avif'),
+(8, 'KOI Moonphase K006.436.65', 4520000, 70, 0, '2-koi-moonphase-k006-436-65-1-36-11-07.avif'),
+(9, 'Koi Đôi K005.303.092.05.01.03', 5800000, 10, 0, 'k005-303-092-05-01-03-vs-k005-103-092-05-01-03.avif'),
+(10, 'Doxa Love Quartet – D222RSV', 58960000, 90, 0, 'D222RSV.avif'),
+(11, 'Seiko 5 Sports Field SRPJ87K1', 9640000, 98, 0, 'Review-dong-ho-Seiko-5-Sports-Field-SRPJ87K1-4.avif'),
+(12, 'Titoni Cosmo Queen 729 G-DB-541', 40060000, 20, 0, 'Titoni-729-G-DB-541-2.avif'),
+(13, 'Titoni Cosmo Queen 729 S-DB-307', 36190000, 50, 0, 'Titoni-729-S-DB-307-4.avif'),
+(14, 'Titoni Cosmo Queen 729 SY-DB-019', 39560000, 120, 0, 'Titoni-729-SY-DB-019-2.avif'),
+(15, 'Titoni Cosmo Queen 729 SY-DB-695', 39560000, 90, 0, 'Titoni-729-SY-DB-695-2.avif'),
+(16, 'Casio World Time AE-1200WHD', 1627000, 30, 0, 'AE-1200WHD-1AVDF.avif'),
+(17, 'Doxa Noble D173TCM', 49240000, 110, 0, 'D173TCM-4-2.avif'),
+(18, 'Casio MTP-1370D-1A2VDF', 1906000, 90, 0, 'CASIO-MTP-1370D-1A2VDF-1.avif'),
+(19, 'Casio MTP-1384D-7A2VDF ', 2694000, 15, 0, 'CASIO-MTP-1384D-7A2VDF-1.avif'),
+(20, 'Casio MTP-1384L-1AVDF', 2584000, 0, 22, 'CASIO-MTP-1384L-1AVDF-0.avif'),
+(21, 'KOI Sheen K004.153.64.14.53.11.05', 3760000, 0, 100, 'K004.153.64.14.53.11.054.avif');
 
 -- --------------------------------------------------------
 
@@ -143,11 +164,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `user_type`) VALUES
-(10, 'TRẦN THANH VINH', '2251120131@ut.edu.vn', 'c4ca4238a0b923820dcc509a6f75849b', 'admin'),
-(11, 'TRẦN THANH VINH', 'vinh7085@gmail.com', 'c4ca4238a0b923820dcc509a6f75849b', 'user');
+(1, 'Vinh Trần', 'vinh38882@gmail.com', 'c4ca4238a0b923820dcc509a6f75849b', 'user'),
+(2, 'Trần Thanh Vinh', 'vinh7085@gmail.com', 'c4ca4238a0b923820dcc509a6f75849b', 'admin');
 
 --
--- Indexes for dumped tables
+-- Chỉ mục cho các bảng đã đổ
 --
 
 --
@@ -163,7 +184,7 @@ ALTER TABLE `message`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `orders`
+-- Chỉ mục cho bảng `orders`
 --
 ALTER TABLE `orders`
   ADD PRIMARY KEY (`id`);
@@ -181,14 +202,14 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT cho các bảng đã đổ
 --
 
 --
 -- AUTO_INCREMENT cho bảng `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=127;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
 
 --
 -- AUTO_INCREMENT cho bảng `message`
@@ -197,22 +218,22 @@ ALTER TABLE `message`
   MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
--- AUTO_INCREMENT for table `orders`
+-- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT cho bảng `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
