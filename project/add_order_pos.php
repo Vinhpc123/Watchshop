@@ -86,15 +86,11 @@ $order_id = $stmt->insert_id;
 $stmt->close();
 
 // ✅ 2. Lưu chi tiết sản phẩm & trừ kho
-$itemStmt = $conn->prepare("
-    INSERT INTO order_items (order_id, product_id, quantity, price)
-    VALUES (?, ?, ?, ?)
-");
 $updateStockStmt = $conn->prepare("
     UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?
 ");
 
-if (!$itemStmt || !$updateStockStmt) {
+if ( !$updateStockStmt) {
     error_log('Prepare item/stock failed: ' . $conn->error);
     echo json_encode(['success' => false, 'error' => 'PREPARE_DETAIL_FAILED']);
     $conn->close();
@@ -106,11 +102,7 @@ foreach ($data['items'] as $item) {
     $qty  = (int)$item['quantity'];
     $price = (float)$item['price'];
 
-    // Lưu chi tiết đơn hàng
-    $itemStmt->bind_param("iiid", $order_id, $pid, $qty, $price);
-    if (!$itemStmt->execute()) {
-        error_log("Insert order item failed: " . $itemStmt->error);
-    }
+    
 
     // Trừ tồn kho (chỉ trừ nếu còn đủ hàng)
     $updateStockStmt->bind_param("iii", $qty, $pid, $qty);
@@ -119,7 +111,7 @@ foreach ($data['items'] as $item) {
     }
 }
 
-$itemStmt->close();
+
 $updateStockStmt->close();
 
 $conn->close();
