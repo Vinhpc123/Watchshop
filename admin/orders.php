@@ -1,51 +1,51 @@
-<?php
-include 'config.php';
+﻿<?php
+include '../config.php';
 session_start();
 
 $admin_id = $_SESSION['admin_id'];
 
 if (!isset($admin_id)) {
-    header('location:login.php');
+    header('location:../login.php');
     exit();
 }
 
-// Cập nhật trạng thái thanh toán
+// Cáº­p nháº­t tráº¡ng thÃ¡i thanh toÃ¡n
 if (isset($_POST['update_order'])) {
     $order_update_id = $_POST['order_id'];
     $update_payment = $_POST['update_payment'];
 
-    // Lấy thông tin đơn hàng cũ để so sánh trạng thái
+    // Láº¥y thÃ´ng tin Ä‘Æ¡n hÃ ng cÅ© Ä‘á»ƒ so sÃ¡nh tráº¡ng thÃ¡i
     $select_old_order = mysqli_query($conn, "SELECT payment_status, total_products FROM `orders` WHERE id = '$order_update_id'");
     $old_order_data = mysqli_fetch_assoc($select_old_order);
     $old_payment_status = $old_order_data['payment_status'];
 
-    // Cập nhật trạng thái mới cho đơn hàng
+    // Cáº­p nháº­t tráº¡ng thÃ¡i má»›i cho Ä‘Æ¡n hÃ ng
     mysqli_query($conn, "UPDATE `orders` SET payment_status = '$update_payment' WHERE id = '$order_update_id'") or die('query failed');
-    $message[] = 'Trạng thái thanh toán đã được cập nhật!';
+    $message[] = 'Tráº¡ng thÃ¡i thanh toÃ¡n Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t!';
     
-    // Nếu trạng thái đơn hàng được chuyển sang 'Thành công' từ 'Đang duyệt'
-    if ($old_payment_status == 'Đang duyệt' && $update_payment == 'Thành công') {
+    // Náº¿u tráº¡ng thÃ¡i Ä‘Æ¡n hÃ ng Ä‘Æ°á»£c chuyá»ƒn sang 'ThÃ nh cÃ´ng' tá»« 'Äang duyá»‡t'
+    if ($old_payment_status == 'Äang duyá»‡t' && $update_payment == 'ThÃ nh cÃ´ng') {
         $total_products_string = $old_order_data['total_products'];
         
-        // Phân tích chuỗi sản phẩm để lấy tên và số lượng
+        // PhÃ¢n tÃ­ch chuá»—i sáº£n pháº©m Ä‘á»ƒ láº¥y tÃªn vÃ  sá»‘ lÆ°á»£ng
         preg_match_all('/, (.*?)\s\((\d+)\)/', $total_products_string, $matches, PREG_SET_ORDER);
         
-        // Cập nhật stock và sold cho từng sản phẩm
+        // Cáº­p nháº­t stock vÃ  sold cho tá»«ng sáº£n pháº©m
         foreach ($matches as $match) {
             $product_name = mysqli_real_escape_string($conn, trim($match[1]));
             $quantity = (int)$match[2];
 
-            // Cập nhật sản phẩm trong bảng products
+            // Cáº­p nháº­t sáº£n pháº©m trong báº£ng products
             mysqli_query($conn, "UPDATE `products` SET stock = stock - '$quantity', sold = sold + '$quantity' WHERE name = '$product_name'") or die('query failed');
         }
     }
 }
 
-// Xóa đơn hàng
+// XÃ³a Ä‘Æ¡n hÃ ng
 if (isset($_GET['delete'])) {
     $delete_id = $_GET['delete'];
 
-    // Lấy thông tin đơn hàng trước khi xóa
+    // Láº¥y thÃ´ng tin Ä‘Æ¡n hÃ ng trÆ°á»›c khi xÃ³a
     $select_order = mysqli_query($conn, "SELECT payment_status, total_products FROM `orders` WHERE id = '$delete_id'") or die('query failed');
     $order_data = mysqli_fetch_assoc($select_order);
 
@@ -53,32 +53,32 @@ if (isset($_GET['delete'])) {
         $payment_status = $order_data['payment_status'];
         $total_products_string = $order_data['total_products'];
 
-        // Nếu đơn đã được xác nhận "Thành công" thì rollback stock và sold
-        if ($payment_status == 'Thành công') {
-            // Tách tên sản phẩm + số lượng từ chuỗi
+        // Náº¿u Ä‘Æ¡n Ä‘Ã£ Ä‘Æ°á»£c xÃ¡c nháº­n "ThÃ nh cÃ´ng" thÃ¬ rollback stock vÃ  sold
+        if ($payment_status == 'ThÃ nh cÃ´ng') {
+            // TÃ¡ch tÃªn sáº£n pháº©m + sá»‘ lÆ°á»£ng tá»« chuá»—i
             preg_match_all('/, (.*?)\s\((\d+)\)/', $total_products_string, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {
                 $product_name = mysqli_real_escape_string($conn, trim($match[1]));
                 $quantity = (int)$match[2];
 
-                // Cộng lại stock, trừ sold
+                // Cá»™ng láº¡i stock, trá»« sold
                 mysqli_query($conn, "UPDATE `products` 
                                      SET stock = stock + $quantity, sold = sold - $quantity 
                                      WHERE name = '$product_name'") or die('query failed');
             }
         }
 
-        // Xóa đơn hàng
+        // XÃ³a Ä‘Æ¡n hÃ ng
         mysqli_query($conn, "DELETE FROM `orders` WHERE id = '$delete_id'") or die('query failed');
     }
 
-    header('location:admin_orders.php');
+    header('location:orders.php');
     exit();
 }
 
 
-// Lấy giá trị tìm kiếm
+// Láº¥y giÃ¡ trá»‹ tÃ¬m kiáº¿m
 $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 $whereClause = "";
 if (!empty($search)) {
@@ -95,7 +95,7 @@ if (!empty($search)) {
     }
 }
 
-// Phân trang
+// PhÃ¢n trang
 $orders_per_page = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $orders_per_page;
@@ -104,7 +104,7 @@ $total_orders_query = mysqli_query($conn, "SELECT * FROM `orders` $whereClause")
 $total_orders = mysqli_num_rows($total_orders_query);
 $total_pages = ceil($total_orders / $orders_per_page);
 
-// Lấy đơn hàng
+// Láº¥y Ä‘Æ¡n hÃ ng
 $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER BY id DESC LIMIT $start_from, $orders_per_page") or die('query failed');
 ?>
 
@@ -114,11 +114,11 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý đơn hàng</title>
+    <title>Quáº£n lÃ½ Ä‘Æ¡n hÃ ng</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/admin_style.css">
+    <link rel="stylesheet" href="../css/admin_style.css">
     <style>
-    /* Giữ nguyên style bảng của bạn */
+    /* Giá»¯ nguyÃªn style báº£ng cá»§a báº¡n */
     .table-container {
         background: #ffffff;
         border-radius: 12px;
@@ -259,16 +259,16 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
 
 <body>
 
-    <?php include 'admin_header.php'; ?>
+    <?php include 'header.php'; ?>
 
     <section class="orders">
-        <h1 class="title">Quản lý đơn hàng</h1>
+        <h1 class="title">Quáº£n lÃ½ Ä‘Æ¡n hÃ ng</h1>
 
-        <!-- Form tìm kiếm -->
+        <!-- Form tÃ¬m kiáº¿m -->
         <form method="get" class="search-box" style="margin: 1rem 3.5rem; text-align: left;">
-            <input type="text" name="search" placeholder="Tìm theo ID, tên, email, SĐT..."
+            <input type="text" name="search" placeholder="TÃ¬m theo ID, tÃªn, email, SÄT..."
                 value="<?php echo htmlspecialchars($search); ?>">
-            <button type="submit">Tìm kiếm</button>
+            <button type="submit">TÃ¬m kiáº¿m</button>
             <select name="limit" onchange="this.form.submit()">
                 <option value="5" <?php if ($orders_per_page == 5) echo 'selected'; ?>>5</option>
                 <option value="10" <?php if ($orders_per_page == 10) echo 'selected'; ?>>10</option>
@@ -283,16 +283,16 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
                 <thead>
                     <tr>
                         <th>Order ID</th>
-                        <th>Ngày đặt</th>
-                        <th>Tên</th>
-                        <th>SĐT</th>
+                        <th>NgÃ y Ä‘áº·t</th>
+                        <th>TÃªn</th>
+                        <th>SÄT</th>
                         <th>Email</th>
-                        <th>Địa chỉ</th>
-                        <th>Sản phẩm</th>
-                        <th>Tổng</th>
-                        <th>Thanh toán</th>
-                        <th>Trạng thái</th>
-                        <th>Hành động</th>
+                        <th>Äá»‹a chá»‰</th>
+                        <th>Sáº£n pháº©m</th>
+                        <th>Tá»•ng</th>
+                        <th>Thanh toÃ¡n</th>
+                        <th>Tráº¡ng thÃ¡i</th>
+                        <th>HÃ nh Ä‘á»™ng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -306,38 +306,38 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
                         <td><?php echo $fetch_orders['email']; ?></td>
                         <td><?php echo $fetch_orders['address']; ?></td>
                         <td><?php echo $fetch_orders['total_products']; ?></td>
-                        <td><?php echo number_format($fetch_orders['total_price'], 0, ',', '.'); ?> VNĐ</td>
+                        <td><?php echo number_format($fetch_orders['total_price'], 0, ',', '.'); ?> VNÄ</td>
                         <td><?php echo $fetch_orders['method']; ?></td>
                         <td>
                             <form method="post" style="display:flex; gap:4px;">
                                 <input type="hidden" name="order_id" value="<?php echo $fetch_orders['id']; ?>">
                                 <select name="update_payment"
-                                    class="<?php echo ($fetch_orders['payment_status'] == 'Thành công') ? 'status-success' : 'status-pending'; ?>">
+                                    class="<?php echo ($fetch_orders['payment_status'] == 'ThÃ nh cÃ´ng') ? 'status-success' : 'status-pending'; ?>">
                                     <option selected disabled><?php echo $fetch_orders['payment_status']; ?></option>
-                                    <option value="Thành công">Thành công</option>
+                                    <option value="ThÃ nh cÃ´ng">ThÃ nh cÃ´ng</option>
                                 </select>
-                                <input type="submit" name="update_order" value="Cập nhật" class="option-btn">
+                                <input type="submit" name="update_order" value="Cáº­p nháº­t" class="option-btn">
                             </form>
                         </td>
                         <td>
-                            <a href="admin_orders.php?delete=<?php echo $fetch_orders['id']; ?>"
-                                onclick="return confirm('Xóa đơn này?');" class="delete-btn1">Xóa</a>
+                            <a href="orders.php?delete=<?php echo $fetch_orders['id']; ?>"
+                                onclick="return confirm('XÃ³a Ä‘Æ¡n nÃ y?');" class="delete-btn1">XÃ³a</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
                     <?php else: ?>
                     <tr>
-                        <td colspan="11" style="text-align:center;">Không tìm thấy đơn hàng!</td>
+                        <td colspan="11" style="text-align:center;">KhÃ´ng tÃ¬m tháº¥y Ä‘Æ¡n hÃ ng!</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
 
-            <!-- Phân trang -->
+            <!-- PhÃ¢n trang -->
             <div class="pagination">
                 <?php if ($page > 1): ?>
                 <a
-                    href="?page=<?php echo $page-1; ?>&limit=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search); ?>">Trước</a>
+                    href="?page=<?php echo $page-1; ?>&limit=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search); ?>">TrÆ°á»›c</a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
@@ -353,7 +353,8 @@ $select_orders = mysqli_query($conn, "SELECT * FROM `orders` $whereClause ORDER 
         </div>
     </section>
 
-    <script src="js/admin_script.js"></script>
+    <script src="../js/admin_script.js"></script>
 </body>
 
 </html>
+

@@ -1,9 +1,9 @@
-<?php
+﻿<?php
 require 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ❗ Không in warning ra output vì sẽ phá JSON
+// â— KhÃ´ng in warning ra output vÃ¬ sáº½ phÃ¡ JSON
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/pos_error.log');
@@ -25,27 +25,27 @@ if (empty($data['items']) || !is_array($data['items'])) {
     exit;
 }
 
-$user_id        = null; // khách lẻ
-$name           = trim($data['customerName'] ?? 'Khách lẻ');
+$user_id        = null; // khÃ¡ch láº»
+$name           = trim($data['customerName'] ?? 'KhÃ¡ch láº»');
 $number         = trim($data['customerNumber'] ?? 'N/A');
 $email          = trim($data['customerEmail'] ?? 'N/A');
-$method         = trim($data['paymentMethod'] ?? 'Tiền mặt');  // ví dụ: "Tiền mặt" | "Chuyển khoản"
-$address        = trim($data['customerAddress'] ?? 'Mua tại cửa hàng');
+$method         = trim($data['paymentMethod'] ?? 'Tiá»n máº·t');  // vÃ­ dá»¥: "Tiá»n máº·t" | "Chuyá»ƒn khoáº£n"
+$address        = trim($data['customerAddress'] ?? 'Mua táº¡i cá»­a hÃ ng');
 
 $total_products = '';
 foreach ($data['items'] as $item) {
-    $pname = $item['name'] ?? 'Sản phẩm';
+    $pname = $item['name'] ?? 'Sáº£n pháº©m';
     $qty   = (int)($item['quantity'] ?? 1);
     $total_products .= $pname . ' (' . $qty . '), ';
 }
 $total_products = rtrim($total_products, ', ');
 
 $total_price    = (int)($data['total'] ?? 0);
-$placed_on      = date('Y-m-d');        // bảng của bạn là DATE
-$payment_status = 'Thành công';
+$placed_on      = date('Y-m-d');        // báº£ng cá»§a báº¡n lÃ  DATE
+$payment_status = 'ThÃ nh cÃ´ng';
 $order_type     = 'pos';
 
-// ✅ 1. Lưu đơn hàng
+// âœ… 1. LÆ°u Ä‘Æ¡n hÃ ng
 $stmt = $conn->prepare("
     INSERT INTO orders
         (user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status, order_type)
@@ -85,7 +85,7 @@ if (!$stmt->execute()) {
 $order_id = $stmt->insert_id;
 $stmt->close();
 
-// ✅ 2. Lưu chi tiết sản phẩm & trừ kho
+// âœ… 2. LÆ°u chi tiáº¿t sáº£n pháº©m & trá»« kho
 $updateStockStmt = $conn->prepare("
     UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?
 ");
@@ -104,7 +104,7 @@ foreach ($data['items'] as $item) {
 
     
 
-    // Trừ tồn kho (chỉ trừ nếu còn đủ hàng)
+    // Trá»« tá»“n kho (chá»‰ trá»« náº¿u cÃ²n Ä‘á»§ hÃ ng)
     $updateStockStmt->bind_param("iii", $qty, $pid, $qty);
     if (!$updateStockStmt->execute()) {
         error_log("Update stock failed for product $pid: " . $updateStockStmt->error);
@@ -118,6 +118,7 @@ $conn->close();
 
 echo json_encode([
     'success'   => true,
-    'message'   => 'Đơn POS đã lưu và cập nhật tồn kho',
+    'message'   => 'ÄÆ¡n POS Ä‘Ã£ lÆ°u vÃ  cáº­p nháº­t tá»“n kho',
     'order_id'  => $order_id
 ], JSON_UNESCAPED_UNICODE);
+

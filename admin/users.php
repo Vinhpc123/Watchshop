@@ -1,19 +1,19 @@
-<?php
+﻿<?php
 
-include 'config.php';
+include '../config.php';
 
 session_start();
 
 $admin_id = $_SESSION['admin_id'];
 
 if(!isset($admin_id)){
-   header('location:login.php');
+   header('location:../login.php');
 }
 
 if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
    mysqli_query($conn, "DELETE FROM `users` WHERE id = '$delete_id'") or die('query failed');
-   header('location:admin_users.php');
+   header('location:users.php');
 }
 
 ?>
@@ -31,7 +31,7 @@ if(isset($_GET['delete'])){
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- custom admin css file link  -->
-    <link rel="stylesheet" href="css/admin_style.css">
+    <link rel="stylesheet" href="../css/admin_style.css">
 
     <style>
     .table-container {
@@ -44,13 +44,13 @@ if(isset($_GET['delete'])){
         box-shadow: var(--box-shadow);
     }
 
-    /* Bảng chính */
+    /* Báº£ng chÃ­nh */
     .user-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 1.7rem;
         min-width: 700px;
-        /* đảm bảo bảng không bị bóp quá nhỏ */
+        /* Ä‘áº£m báº£o báº£ng khÃ´ng bá»‹ bÃ³p quÃ¡ nhá» */
     }
 
     .user-table thead {
@@ -63,10 +63,10 @@ if(isset($_GET['delete'])){
         border: 1px solid #ccc;
         text-align: center;
         white-space: nowrap;
-        /* giữ chữ không bị xuống dòng */
+        /* giá»¯ chá»¯ khÃ´ng bá»‹ xuá»‘ng dÃ²ng */
     }
 
-    /* Nút xóa */
+    /* NÃºt xÃ³a */
     .user-table td a.delete-btn {
         background: var(--red);
         color: white;
@@ -123,21 +123,21 @@ if(isset($_GET['delete'])){
 
 <body>
 
-    <?php include 'admin_header.php'; ?>
+    <?php include 'header.php'; ?>
 
     <section class="users">
 
-        <h1 class="title"> Tài khoản </h1>
+        <h1 class="title"> TÃ i khoáº£n </h1>
 
         <div class="table-container">
             <table class="user-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Tên người dùng</th>
+                        <th>TÃªn ngÆ°á»i dÃ¹ng</th>
                         <th>Email</th>
-                        <th>Loại tài khoản</th>
-                        <th>Hành động</th>
+                        <th>Loáº¡i tÃ i khoáº£n</th>
+                        <th>HÃ nh Ä‘á»™ng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -153,9 +153,9 @@ if(isset($_GET['delete'])){
                             <?php echo $fetch_users['user_type']; ?>
                         </td>
                         <td>
-                            <a href="admin_users.php?delete=<?php echo $fetch_users['id']; ?>"
-                                onclick="return confirm('Bạn có chắc muốn xóa tài khoản này?');"
-                                class="delete-btn">Xóa</a>
+                            <a href="users.php?delete=<?php echo $fetch_users['id']; ?>"
+                                onclick="return confirm('Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a tÃ i khoáº£n nÃ y?');"
+                                class="delete-btn">XÃ³a</a>
                         </td>
                     </tr>
                     <?php } ?>
@@ -176,8 +176,9 @@ if(isset($_GET['delete'])){
 
 
     <!-- custom admin js file link  -->
-    <script src="js/admin_script.js"></script>
+    <script src="../js/admin_script.js"></script>
 
 </body>
 
 </html>
+

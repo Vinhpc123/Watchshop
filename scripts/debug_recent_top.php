@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config.php';
+include '../config.php';
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['admin_id'])) {
