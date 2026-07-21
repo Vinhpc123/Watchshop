@@ -73,7 +73,7 @@ if (isset($_POST['order_btn'])) {
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
 
 
@@ -165,7 +165,7 @@ if (isset($_POST['order_btn'])) {
 
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- Custom JS File Link -->
     <script src="js/script.js"></script>

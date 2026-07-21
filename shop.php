@@ -75,7 +75,7 @@ if (isset($_SESSION['cart_message'])) {
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
     <section class="products">
 
@@ -133,7 +133,7 @@ if (isset($_SESSION['cart_message'])) {
 
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- Custom JS File Link -->
     <script src="./js/script.js"></script>

@@ -102,7 +102,7 @@ $user_id = $_SESSION['user_id'];
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
     <div class="heading">
 
@@ -258,7 +258,7 @@ $user_id = $_SESSION['user_id'];
 
 
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- custom js file link  -->
     <script src="js/script.js"></script>

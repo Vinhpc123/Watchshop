@@ -175,7 +175,7 @@ if(isset($_POST['send'])){
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
     <section class="contact">
 
         <div class="contact-form">
@@ -209,7 +209,7 @@ if(isset($_POST['send'])){
     </section>
 
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- custom js file link  -->
     <script src="js/script.js"></script>

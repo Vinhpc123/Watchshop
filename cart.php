@@ -96,7 +96,7 @@ if(isset($_POST['proceed_checkout'])){
 </head>
 
 <body>
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
     <section class="shopping-cart">
 
         <h1 class="title">Sản phẩm được thêm</h1>
@@ -154,7 +154,7 @@ if(isset($_POST['proceed_checkout'])){
 
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- custom js file link  -->
     <script src="js/script.js"></script>

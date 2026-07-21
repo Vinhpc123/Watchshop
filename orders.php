@@ -200,7 +200,7 @@ if (isset($_SESSION['user_id'])) {
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
     <section class="placed-orders">
         <h1 class="title">Đơn đặt hàng</h1>
@@ -248,7 +248,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- Custom JS File Link -->
     <script src="js/script.js"></script>

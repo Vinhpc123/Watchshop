@@ -207,7 +207,7 @@ if (isset($_POST['add_to_cart'])) {
 
 <body>
 
-    <?php include 'header.php'; ?>
+    <?php include 'includes/header.php'; ?>
 
     <section class="home">
         <!-- Các slide ảnh nền -->
@@ -377,7 +377,7 @@ if (isset($_POST['add_to_cart'])) {
 
     </section>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
     <!-- Custom JS File Link -->
     <script src="js/script.js"></script>
