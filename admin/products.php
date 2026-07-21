@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 include '../config.php';
 session_start();
 
@@ -8,7 +8,7 @@ if (!isset($admin_id)) {
    exit;
 }
 
-// ThÃªm sáº£n pháº©m
+// Thêm sản phẩm
 if (isset($_POST['add_product'])) {
    $name = mysqli_real_escape_string($conn, $_POST['name']);
    $price = $_POST['price'];
@@ -20,15 +20,15 @@ if (isset($_POST['add_product'])) {
 
    $check = mysqli_query($conn, "SELECT name FROM products WHERE name='$name'");
    if (mysqli_num_rows($check) > 0) {
-      $message[] = 'Sáº£n pháº©m Ä‘Ã£ tá»“n táº¡i';
+      $message[] = 'Sản phẩm đã tồn tại';
    } else {
       if ($image_size > 2000000) {
-         $message[] = 'HÃ¬nh áº£nh quÃ¡ lá»›n';
+         $message[] = 'Hình ảnh quá lớn';
       } else {
          move_uploaded_file($image_tmp, $folder);
          mysqli_query($conn, "INSERT INTO products(name, price, stock, image) 
                               VALUES('$name', '$price', '$stock', '$image')");
-         $message[] = 'ÄÃ£ thÃªm sáº£n pháº©m';
+         $message[] = 'Đã thêm sản phẩm';
       }
    }
 }
@@ -37,19 +37,19 @@ if (isset($_POST['add_product'])) {
 
 
 
-// XÃ³a sáº£n pháº©m
+// Xóa sản phẩm
 if (isset($_GET['delete'])) {
    $id = $_GET['delete'];
    $img = mysqli_fetch_assoc(mysqli_query($conn, "SELECT image FROM products WHERE id='$id'"));
-   if ($img && file_exists('../uploaded_img/' . $img['image'])) {
-      unlink('../uploaded_img/' . $img['image']);
+   if ($img && file_exists('uploaded_img/' . $img['image'])) {
+      unlink('uploaded_img/' . $img['image']);
    }
    mysqli_query($conn, "DELETE FROM products WHERE id='$id'");
-   header('location:products.php');
+   header('location:admin_products.php');
    exit;
 }
 
-// Cáº­p nháº­t sáº£n pháº©m
+// Cập nhật sản phẩm
 if (isset($_POST['update_product'])) {
    $id = $_POST['update_id'];
    $name = $_POST['update_name'];
@@ -75,7 +75,7 @@ if (isset($_POST['update_product'])) {
    exit;
 }
 
-/* ------------------- TÃŒM KIáº¾M + PHÃ‚N TRANG ------------------- */
+/* ------------------- TÌM KIẾM + PHÂN TRANG ------------------- */
 $search_query = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : "";
 
 $orders_per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
@@ -84,7 +84,7 @@ if ($page < 1) $page = 1;
 
 $start = ($page - 1) * $orders_per_page;
 
-// Äáº¿m tá»•ng sá»‘ sáº£n pháº©m
+// Đếm tổng số sản phẩm
 $sql_count = "SELECT COUNT(*) AS total FROM products";
 if ($search_query != "") {
     $sql_count .= " WHERE name LIKE '%$search_query%'";
@@ -93,7 +93,7 @@ $result_count = mysqli_query($conn, $sql_count);
 $total_products = mysqli_fetch_assoc($result_count)['total'];
 $total_pages = ceil($total_products / $orders_per_page);
 
-// Láº¥y danh sÃ¡ch sáº£n pháº©m
+// Lấy danh sách sản phẩm
 $sql_products = "SELECT * FROM products";
 if ($search_query != "") {
     $sql_products .= " WHERE name LIKE '%$search_query%'";
@@ -108,18 +108,18 @@ $select_products = mysqli_query($conn, $sql_products);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quáº£n lÃ½ sáº£n pháº©m</title>
+    <title>Quản lý sản phẩm</title>
     <link rel="stylesheet" href="../css/admin_style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-    /* áº¨n spinner trong input type=number (Chrome, Safari, Edge) */
+    /* Ẩn spinner trong input type=number (Chrome, Safari, Edge) */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
     }
 
-    /* áº¨n spinner trong Firefox */
+    /* Ẩn spinner trong Firefox */
     input[type=number] {
         -moz-appearance: textfield;
     }
@@ -130,7 +130,7 @@ $select_products = mysqli_query($conn, $sql_products);
         margin: auto;
     }
 
-    /* Form thÃªm sáº£n pháº©m */
+    /* Form thêm sản phẩm */
     .add-products form,
     .edit-product-form form {
         background: #fff;
@@ -357,7 +357,7 @@ $select_products = mysqli_query($conn, $sql_products);
         font-size: 1.2rem;
     }
 
-    /* phÃ¢n trang  */
+    /* phân trang  */
     .pagination {
         display: flex;
         justify-content: center;
@@ -409,26 +409,43 @@ $select_products = mysqli_query($conn, $sql_products);
 <body>
     <?php include 'header.php'; ?>
 
-    <div class="container">
-        <section class="add-products" id="add">
-            <h2 class="title">ThÃªm sáº£n pháº©m má»›i</h2>
-            <form action="" method="post" enctype="multipart/form-data">
-                <input type="text" name="name" placeholder="TÃªn sáº£n pháº©m" class="box" required>
-                <input type="number" name="price" placeholder="GiÃ¡ sáº£n pháº©m" class="box" required>
-                <input type="number" name="stock" placeholder="Sá»‘ lÆ°á»£ng" class="box" required>
-                <input type="file" name="image" accept="image/*" class="box" required>
-                <input type="submit" name="add_product" value="ThÃªm Sáº£n Pháº©m" class="btn">
-            </form>
-        </section>
-
-        <section class="product-list">
+    <div class="admin-wrapper">
+        <section class="admin-content">
+            <!-- Top bar -->
             <div class="top-bar">
-                <h2>Danh sÃ¡ch sáº£n pháº©m</h2>
+                <h2>Danh sách sản phẩm</h2>
+                <div class="actions">
+                    <a href="#" id="open-add-modal" class="add-btn"><i class="fas fa-plus"></i> Thêm sản phẩm</a>
+                </div>
             </div>
 
+            <!-- Modal Form thêm sản phẩm (mặc định ẩn) -->
+            <div id="add-modal" class="edit-product-form" style="display:none;">
+                <form action="" method="post" enctype="multipart/form-data">
+                    <h3 style="text-align:center; font-size:1.8rem; margin-bottom:15px;">Thêm sản phẩm mới</h3>
+                    <input type="text" name="name" placeholder="Tên sản phẩm" class="box" required>
+                    <input type="number" name="price" placeholder="Giá" class="box" required>
+                    <input type="number" name="stock" placeholder="Số lượng tồn kho" class="box" value="100" required>
+                    <input type="file" name="image" accept="image/*" class="box" required>
+                    <input type="submit" name="add_product" value="Thêm ngay" class="btn">
+                    <button type="button" id="close-add-modal" class="btn" style="background:#e74c3c; margin-top:10px;">Hủy</button>
+                </form>
+            </div>
+
+            <script>
+            document.getElementById('open-add-modal').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('add-modal').style.display = 'flex';
+            });
+            document.getElementById('close-add-modal').addEventListener('click', function() {
+                document.getElementById('add-modal').style.display = 'none';
+            });
+            </script>
+
+            <!-- Bộ lọc & Tìm kiếm -->
             <div class="filter-bar">
                 <form method="get">
-                    <label for="per-page">Hiá»ƒn thá»‹:</label>
+                    <label for="per-page">Hiển thị:</label>
                     <select id="per-page" name="per_page" onchange="this.form.submit()">
                         <option value="5" <?php if ($orders_per_page == 5) echo 'selected'; ?>>5</option>
                         <option value="10" <?php if ($orders_per_page == 10) echo 'selected'; ?>>10</option>
@@ -436,23 +453,23 @@ $select_products = mysqli_query($conn, $sql_products);
                         <option value="50" <?php if ($orders_per_page == 50) echo 'selected'; ?>>50</option>
                     </select>
                     <input type="text" name="search" value="<?php echo $search_query; ?>"
-                        placeholder="TÃ¬m kiáº¿m sáº£n pháº©m...">
-                    <input type="submit" value="TÃ¬m">
+                        placeholder="Tìm kiếm sản phẩm...">
+                    <input type="submit" value="Tìm">
                 </form>
-                <span>TÃ¬m tháº¥y <?php echo $total_products; ?> sáº£n pháº©m</span>
+                <span>Tìm thấy <?php echo $total_products; ?> sản phẩm</span>
             </div>
 
             <table class="product-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>áº¢nh</th>
-                        <th>TÃªn</th>
-                        <th>GiÃ¡</th>
-                        <th>Tá»“n kho</th>
-                        <th>ÄÃ£ bÃ¡n</th>
-                        <th>Tráº¡ng thÃ¡i</th>
-                        <th>HÃ nh Ä‘á»™ng</th>
+                        <th>Ảnh</th>
+                        <th>Tên</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Đã bán</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -461,25 +478,25 @@ $select_products = mysqli_query($conn, $sql_products);
                         <td><?php echo $row['id']; ?></td>
                         <td><img src="../uploaded_img/<?php echo $row['image']; ?>" class="thumb" alt=""></td>
                         <td><?php echo $row['name']; ?></td>
-                        <td><?php echo number_format($row['price'], 0, ',', '.'); ?> VNÄ</td>
+                        <td><?php echo number_format($row['price'], 0, ',', '.'); ?> VNĐ</td>
                         <td><?php echo number_format($row['stock'], 0, ',', '.'); ?></td>
                         <td><?php echo number_format($row['sold'], 0, ',', '.'); ?></td>
-                        <td><span class="status enabled">Hiá»‡n</span></td>
+                        <td><span class="status enabled">Hiện</span></td>
                         <td>
-                            <a href="products.php?update=<?php echo $row['id']; ?>" class="option-btn">Sá»­a</a>
+                            <a href="products.php?update=<?php echo $row['id']; ?>" class="option-btn">Sửa</a>
                             <a href="products.php?delete=<?php echo $row['id']; ?>" class="delete-btn"
-                                onclick="return confirm('Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n xÃ³a?')">XÃ³a</a>
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</a>
                         </td>
                     </tr>
                     <?php } ?>
                 </tbody>
             </table>
 
-            <!-- PhÃ¢n trang -->
+            <!-- Phân trang -->
             <div class="pagination">
                 <?php if ($page > 1): ?>
                 <a
-                    href="?page=<?php echo $page-1; ?>&per_page=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search_query); ?>">TrÆ°á»›c</a>
+                    href="?page=<?php echo $page-1; ?>&per_page=<?php echo $orders_per_page; ?>&search=<?php echo urlencode($search_query); ?>">Trước</a>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
@@ -508,8 +525,8 @@ $select_products = mysqli_query($conn, $sql_products);
                 <input type="number" name="update_price" value="<?php echo $data['price']; ?>" class="box" required>
                 <input type="number" name="update_stock" value="<?php echo $data['stock']; ?>" class="box" required>
                 <input type="file" name="update_image" accept="image/*" class="box">
-                <input type="submit" name="update_product" value="Cáº­p nháº­t sáº£n pháº©m" class="btn">
-                <a href="products.php" id="close-update" class="btn">Há»§y</a>
+                <input type="submit" name="update_product" value="Cập nhật sản phẩm" class="btn">
+                <a href="products.php" id="close-update" class="btn">Hủy</a>
             </form>
         </section>
         <?php endif; ?>
@@ -517,4 +534,3 @@ $select_products = mysqli_query($conn, $sql_products);
 </body>
 
 </html>
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include '../config.php';
 
@@ -44,13 +44,13 @@ if(isset($_GET['delete'])){
         box-shadow: var(--box-shadow);
     }
 
-    /* Báº£ng chÃ­nh */
+    /* Bảng chính */
     .user-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 1.7rem;
         min-width: 700px;
-        /* Ä‘áº£m báº£o báº£ng khÃ´ng bá»‹ bÃ³p quÃ¡ nhá» */
+        /* đảm bảo bảng không bị bóp quá nhỏ */
     }
 
     .user-table thead {
@@ -63,10 +63,10 @@ if(isset($_GET['delete'])){
         border: 1px solid #ccc;
         text-align: center;
         white-space: nowrap;
-        /* giá»¯ chá»¯ khÃ´ng bá»‹ xuá»‘ng dÃ²ng */
+        /* giữ chữ không bị xuống dòng */
     }
 
-    /* NÃºt xÃ³a */
+    /* Nút xóa */
     .user-table td a.delete-btn {
         background: var(--red);
         color: white;
@@ -127,17 +127,17 @@ if(isset($_GET['delete'])){
 
     <section class="users">
 
-        <h1 class="title"> TÃ i khoáº£n </h1>
+        <h1 class="title"> Tài khoản </h1>
 
         <div class="table-container">
             <table class="user-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>TÃªn ngÆ°á»i dÃ¹ng</th>
+                        <th>Tên người dùng</th>
                         <th>Email</th>
-                        <th>Loáº¡i tÃ i khoáº£n</th>
-                        <th>HÃ nh Ä‘á»™ng</th>
+                        <th>Loại tài khoản</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -154,8 +154,8 @@ if(isset($_GET['delete'])){
                         </td>
                         <td>
                             <a href="users.php?delete=<?php echo $fetch_users['id']; ?>"
-                                onclick="return confirm('Báº¡n cÃ³ cháº¯c muá»‘n xÃ³a tÃ i khoáº£n nÃ y?');"
-                                class="delete-btn">XÃ³a</a>
+                                onclick="return confirm('Bạn có chắc muốn xóa tài khoản này?');"
+                                class="delete-btn">Xóa</a>
                         </td>
                     </tr>
                     <?php } ?>
@@ -181,4 +181,3 @@ if(isset($_GET['delete'])){
 </body>
 
 </html>
-

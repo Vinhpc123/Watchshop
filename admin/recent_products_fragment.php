@@ -1,14 +1,14 @@
-﻿<?php
+<?php
 session_start();
-include '../config.php';
+include 'config.php';
 // only admin allowed
 if (!isset($_SESSION['admin_id'])) {
     http_response_code(403);
     echo '<ul class="product-list"><li><span>Forbidden</span><span>0</span></li></ul>';
     exit;
 }
-// Tráº£ vá» HTML cho pháº§n Sáº£n pháº©m má»›i Ä‘áº·t (Top 5) trong 7 ngÃ y
-$recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'ThÃ nh cÃ´ng' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+// Trả về HTML cho phần Sản phẩm mới đặt (Top 5) trong 7 ngày
+$recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
 $recent_result = mysqli_query($conn, $recent_query);
 $recent_counts = array();
 
@@ -41,15 +41,13 @@ if (!empty($recent_top)) {
     echo '<ul class="product-list">';
     $i = 1;
     foreach ($recent_top as $name => $qty) {
-        echo '<li><span>' . $i . '. ' . htmlspecialchars($name) . '</span><span>' . $qty . ' cÃ¡i</span></li>';
+        echo '<li><span>' . $i . '. ' . htmlspecialchars($name) . '</span><span>' . $qty . ' cái</span></li>';
         $i++;
     }
     echo '</ul>';
 } else {
-    echo '<ul class="product-list"><li><span>ChÆ°a cÃ³ Ä‘Æ¡n hÃ ng trong 7 ngÃ y</span><span>0 cÃ¡i</span></li></ul>';
+    echo '<ul class="product-list"><li><span>Chưa có đơn hàng trong 7 ngày</span><span>0 cái</span></li></ul>';
 }
-
 $html = ob_get_clean();
 header('Content-Type: text/html; charset=utf-8');
 echo $html;
-
