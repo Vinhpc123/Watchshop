@@ -1,0 +1,164 @@
+<?php
+
+include 'config.php';
+
+session_start();
+
+$user_id = $_SESSION['user_id'];
+
+if(!isset($user_id)){
+   header('location:login.php');
+}
+
+if(isset($_POST['update_cart'])){
+   $cart_id = $_POST['cart_id'];
+   $cart_quantity = $_POST['cart_quantity'];
+   mysqli_query($conn, "UPDATE `cart` SET quantity = '$cart_quantity' WHERE id = '$cart_id'") or die('query failed');
+//    $message[] = 'số lượng giỏ hàng đã được cập nhật!';
+}
+
+if(isset($_GET['delete'])){
+   $delete_id = $_GET['delete'];
+   mysqli_query($conn, "DELETE FROM `cart` WHERE id = '$delete_id'") or die('query failed');
+   header('location:cart.php');
+}
+
+if(isset($_GET['delete_all'])){
+   mysqli_query($conn, "DELETE FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
+   header('location:cart.php');
+}
+
+if(isset($_POST['update_cart'])){
+    $update_quantity = $_POST['cart_quantity'];
+    $update_id = $_POST['cart_id'];
+
+    // Lấy thông tin sản phẩm và tồn kho hiện tại
+    $select_product = mysqli_query($conn, "SELECT name, stock FROM `products` WHERE name = (SELECT name FROM `cart` WHERE id = '$update_id')") or die('query failed');
+    $fetch_product = mysqli_fetch_assoc($select_product);
+    $product_name = $fetch_product['name'];
+    $product_stock = $fetch_product['stock'];
+
+    if($update_quantity > $product_stock){
+        // Giới hạn về tồn kho
+        mysqli_query($conn, "UPDATE `cart` SET quantity = '$product_stock' WHERE id = '$update_id'") or die('query failed');
+        $message[] = 'Sản phẩm ' . $product_name . ' chỉ còn ' . $product_stock . ' sản phẩm trong kho! 
+        Giỏ hàng đã được điều chỉnh về số lượng tối đa.';
+    } else {
+        mysqli_query($conn, "UPDATE `cart` SET quantity = '$update_quantity' WHERE id = '$update_id'") or die('query failed');
+        $message[] = 'Giỏ hàng đã được cập nhật!';
+    }
+
+}
+
+//xử lý khi nhập số lượng sản phẩm
+if(isset($_POST['proceed_checkout'])){
+    $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
+    $error = false;
+
+    while($fetch_cart = mysqli_fetch_assoc($select_cart)){
+        $product_name = $fetch_cart['name'];
+        $quantity = $fetch_cart['quantity'];
+
+        // Lấy tồn kho
+        $check_stock = mysqli_query($conn, "SELECT stock FROM `products` WHERE name = '$product_name'") or die('query failed');
+        $product_data = mysqli_fetch_assoc($check_stock);
+        $stock = $product_data['stock'];
+
+        if($quantity > $stock){
+            $message[] = '❌ Sản phẩm "' . $product_name . '" chỉ còn ' . $stock . ' sản phẩm trong kho. Vui lòng chỉnh lại số lượng!';
+            $error = true;
+        }
+    }
+
+    // Nếu không có lỗi thì cho qua checkout
+    if(!$error){
+        header('Location: checkout.php');
+        exit();
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cart</title>
+
+    <!-- font awesome cdn link  -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- custom css file link  -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <?php include 'header.php'; ?>
+    <section class="shopping-cart">
+
+        <h1 class="title">Sản phẩm được thêm</h1>
+
+        <div class="box-container">
+            <?php
+                $grand_total = 0;
+                $select_cart = mysqli_query($conn, "SELECT * FROM `cart` WHERE user_id = '$user_id'") or die('query failed');
+                if(mysqli_num_rows($select_cart) > 0){
+                    while($fetch_cart = mysqli_fetch_assoc($select_cart)){   
+            ?>
+            <div class="box">
+                <a href="cart.php?delete=<?php echo $fetch_cart['id']; ?>" class="fas fa-times"
+                    onclick="return confirm('Bạn muốn gỡ sản phẩm này?');"></a>
+                <img src="uploaded_img/<?php echo $fetch_cart['image']; ?>" alt="">
+                <div class="name"><?php echo $fetch_cart['name']; ?></div>
+                <div class="price"><?php echo number_format($fetch_cart['price'], 0, ',', '.'); ?> VNĐ</div>
+
+                <form action="" method="post">
+                    <input type="hidden" name="cart_id" value="<?php echo $fetch_cart['id']; ?>">
+                    <input type="number" min="1" name="cart_quantity" value="<?php echo $fetch_cart['quantity']; ?>">
+                    <input type="submit" name="update_cart" value="Cập nhật" class="option-btn">
+                </form>
+                <div class="sub-total"> Tổng :
+                    <span><?php echo number_format($sub_total = $fetch_cart['quantity'] * $fetch_cart['price'], 0, ',', '.'); ?>
+                        VNĐ</span>
+                </div>
+
+            </div>
+            <?php
+                $grand_total += $sub_total;
+                    }
+                }else{
+                    echo '<p class="empty">Giỏ hàng đang trống!</p>';
+                }
+            ?>
+        </div>
+
+        <div style="margin-top: 2rem; text-align:center;">
+            <a href="cart.php?delete_all" class="delete-btn <?php echo ($grand_total > 1)?'':'disabled'; ?>"
+                onclick="return confirm('Bạn muốn gỡ toàn bộ sản phẩm này?');">HỦY ĐƠN HÀNG</a>
+        </div>
+
+        <div class="cart-total">
+            <p>Tổng: <span><?php echo number_format($grand_total, 0, ',', '.'); ?> VNĐ</span></p>
+            <div class="flex">
+                <a href="shop.php" class="option-btn">Tiếp tục mua sắm</a>
+                <form method="post" style="display:inline;">
+                    <input type="submit" name="proceed_checkout" value="Thanh toán"
+                        class="btn <?php echo ($grand_total > 0) ? '' : 'disabled'; ?>">
+                </form>
+            </div>
+        </div>
+
+
+    </section>
+
+    <?php include 'footer.php'; ?>
+
+    <!-- custom js file link  -->
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>

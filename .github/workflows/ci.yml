@@ -1,0 +1,27 @@
+name: PHP Code Quality & Syntax Check CI
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  lint:
+    name: Lint & Code Syntax Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP Environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mysqli, pdo, pdo_mysql
+
+      - name: Lint PHP Files for Syntax Errors
+        run: |
+          echo "Checking PHP syntax across all files..."
+          find . -name "*.php" ! -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors detected" && exit 1 || echo "All PHP files passed syntax validation!"
