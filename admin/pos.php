@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include '../config.php';
 
@@ -19,7 +19,7 @@ if(!isset($admin_id)){
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BÃ¡n hÃ ng</title>
+    <title>Bán hàng tại quầy (POS)</title>
 
     <!-- font awesome cdn link  -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -38,7 +38,7 @@ if(!isset($admin_id)){
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem 2.5rem;
-        /* tÄƒng padding trÃ¡i/pháº£i */
+        /* tăng padding trái/phải */
         display: block;
     }
 
@@ -229,14 +229,14 @@ if(!isset($admin_id)){
         align-items: center;
         justify-content: space-between;
         padding: 1.25rem 1rem;
-        /* tÄƒng padding */
+        /* tăng padding */
         background: #f9fafb;
         border-radius: 0.75rem;
-        /* bo gÃ³c lá»›n hÆ¡n */
+        /* bo góc lớn hơn */
         margin-bottom: 1rem;
-        /* tÄƒng khoáº£ng cÃ¡ch giá»¯a cÃ¡c item */
+        /* tăng khoảng cách giữa các item */
         font-size: 1.2rem;
-        /* tÄƒng cá»¡ chá»¯ */
+        /* tăng cỡ chữ */
         min-height: 70px;
     }
 
@@ -314,7 +314,7 @@ if(!isset($admin_id)){
     #customNotification {
         position: fixed;
         top: 60px;
-        /* DÆ°á»›i header, cÃ³ thá»ƒ chá»‰nh láº¡i cho phÃ¹ há»£p */
+        /* Dưới header, có thể chỉnh lại cho phù hợp */
         right: 2rem;
         z-index: 9999;
         min-width: 260px;
@@ -389,8 +389,8 @@ if(!isset($admin_id)){
     <!-- POS Section -->
     <div id="pos" class="section hidden">
         <div class="mb-6">
-            <h2>BÃ¡n hÃ ng (POS)</h2>
-            <p class="text-gray-600">Táº¡o Ä‘Æ¡n hÃ ng vÃ  thanh toÃ¡n</p>
+            <h2>Bán hàng (POS)</h2>
+            <p class="text-gray-600">Tạo đơn hàng và thanh toán</p>
         </div>
 
         <div class="grid-pos">
@@ -398,7 +398,7 @@ if(!isset($admin_id)){
             <div class="product-selection">
                 <div class="box">
                     <div class="mb-4">
-                        <input type="text" id="posProductSearch" placeholder="TÃ¬m sáº£n pháº©m Ä‘á»ƒ thÃªm vÃ o giá»..."
+                        <input type="text" id="posProductSearch" placeholder="Tìm sản phẩm để thêm vào giỏ..."
                             class="input-search">
                     </div>
                     <div id="posProductGrid" class="product-grid">
@@ -410,37 +410,37 @@ if(!isset($admin_id)){
             <!-- Cart and Checkout -->
             <div class="cart-section">
                 <div class="box">
-                    <h3>Giá» hÃ ng</h3>
+                    <h3>Giỏ hàng</h3>
                     <div id="cartItems" class="cart-items">
-                        <p class="cart-empty">Giá» hÃ ng trá»‘ng</p>
+                        <p class="cart-empty">Giỏ hàng trống</p>
                     </div>
 
                     <div class="cart-summary">
                         <div class="summary-row">
-                            <span class="label">Táº¡m tÃ­nh:</span>
-                            <span id="subtotal" class="value">0â‚«</span>
+                            <span class="label">Tạm tính:</span>
+                            <span id="subtotal" class="value">0₫</span>
                         </div>
                         <div class="summary-row total">
-                            <span class="label">Tá»•ng cá»™ng:</span>
-                            <span id="total" class="value total-value">0â‚«</span>
+                            <span class="label">Tổng cộng:</span>
+                            <span id="total" class="value total-value">0₫</span>
                         </div>
 
                         <div class="mb-4">
-                            <label class="input-label">KhÃ¡ch hÃ ng</label>
+                            <label class="input-label">Khách hàng</label>
                             <div class="input-select" style="background:#f3f4f6;pointer-events:none;user-select:none;">
-                                KhÃ¡ch láº»</div>
+                                Khách lẻ</div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="input-label">PhÆ°Æ¡ng thá»©c thanh toÃ¡n</label>
+                            <label class="input-label">Phương thức thanh toán</label>
                             <select id="paymentMethod" class="input-select">
-                                <option value="cash">Tiá»n máº·t</option>
-                                <option value="transfer">Chuyá»ƒn khoáº£n</option>
+                                <option value="cash">Tiền mặt</option>
+                                <option value="transfer">Chuyển khoản</option>
                             </select>
                         </div>
 
                         <button onclick="processOrder()" id="checkoutBtn" disabled class="checkout-btn">
-                            Thanh toÃ¡n
+                            Thanh toán
                         </button>
                     </div>
                 </div>
@@ -460,11 +460,11 @@ if(!isset($admin_id)){
             'name' => $row['name'],
             'category' => 'other',
             'price' => (float)$row['price'],
-            'stock' => (int)$row['stock'], // âœ… láº¥y tá»« DB
+            'stock' => (int)$row['stock'], // ✅ lấy từ DB
             'threshold' => 3,
             'description' => '',
             'sold' => 0,
-            'image' => $row['image'] // khÃ´ng cÃ²n lá»—i undefined
+            'image' => $row['image'] // không còn lỗi undefined
         ];
     }
     
@@ -483,7 +483,7 @@ if(!isset($admin_id)){
     // Data Storage
     let products = <?php echo json_encode($products_arr, JSON_UNESCAPED_UNICODE); ?>;
     let customers = <?php echo json_encode($users_arr, JSON_UNESCAPED_UNICODE); ?>;
-    let orders = []; // máº£ng lÆ°u cÃ¡c Ä‘Æ¡n hÃ ng
+    let orders = []; // mảng lưu các đơn hàng
     let cart = [];
 
     // Utility Functions
@@ -514,7 +514,7 @@ if(!isset($admin_id)){
             <span>${message}</span>
         `;
         container.appendChild(notification);
-        // Giá»›i háº¡n tá»‘i Ä‘a 6 toast
+        // Giới hạn tối đa 6 toast
         while (container.children.length > 4) {
             container.removeChild(container.firstChild);
         }
@@ -540,7 +540,7 @@ if(!isset($admin_id)){
             <div class="product-item" data-id="${product.id}">
             <img 
                 src="../uploaded_img/${product.image || 'no-image.png'}" 
-                alt="Äá»“ng há»“ ${product.name}" 
+                alt="Đồng hồ ${product.name}" 
                 width="120" height="120"
                 loading="lazy"
                 class="product-img"
@@ -550,14 +550,14 @@ if(!isset($admin_id)){
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span class="product-price">${formatCurrency(product.price)}</span>
-                <span class="product-stock">CÃ²n: ${product.stock}</span>
+                <span class="product-stock">Còn: ${product.stock}</span>
             </div>
         </div>
         `).join('');
         const grid = document.getElementById('posProductGrid');
         grid.innerHTML = productsHtml;
 
-        // GÃ¡n sá»± kiá»‡n click sau khi render xong
+        // Gán sự kiện click sau khi render xong
         grid.querySelectorAll('.product-item').forEach(item => {
             item.addEventListener('click', () => {
                 const id = parseInt(item.getAttribute('data-id'));
@@ -578,7 +578,7 @@ if(!isset($admin_id)){
             if (existingItem.quantity < product.stock) {
                 existingItem.quantity++;
             } else {
-                showNotification('KhÃ´ng Ä‘á»§ hÃ ng trong kho', 'error');
+                showNotification('Không đủ hàng trong kho', 'error');
                 return;
             }
         } else {
@@ -591,7 +591,7 @@ if(!isset($admin_id)){
             });
         }
         updateCartDisplay();
-        showNotification(`ÄÃ£ thÃªm ${product.name} vÃ o giá» hÃ ng`);
+        showNotification(`Đã thêm ${product.name} vào giỏ hàng`);
     }
 
     function removeFromCart(productId) {
@@ -599,7 +599,7 @@ if(!isset($admin_id)){
         cart = cart.filter(item => item.id != productId);
         updateCartDisplay();
         if (item) {
-            showNotification(`ÄÃ£ xÃ³a ${item.name} khá»i giá» hÃ ng`, 'info');
+            showNotification(`Đã xóa ${item.name} khỏi giỏ hàng`, 'info');
         }
     }
 
@@ -615,7 +615,7 @@ if(!isset($admin_id)){
             item.quantity = newQuantity;
             updateCartDisplay();
         } else {
-            showNotification('KhÃ´ng Ä‘á»§ hÃ ng trong kho', 'error');
+            showNotification('Không đủ hàng trong kho', 'error');
         }
     }
 
@@ -623,7 +623,7 @@ if(!isset($admin_id)){
         const cartItemsContainer = document.getElementById('cartItems');
 
         if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="cart-empty">Giá» hÃ ng trá»‘ng</p>';
+            cartItemsContainer.innerHTML = '<p class="cart-empty">Giỏ hàng trống</p>';
             document.getElementById('checkoutBtn').disabled = true;
         } else {
             const cartHtml = cart.map(item => `
@@ -660,12 +660,12 @@ if(!isset($admin_id)){
 
         const order = {
             customerId: null,
-            customerName: 'KhÃ¡ch láº»',
+            customerName: 'Khách lẻ',
             customerNumber: 'N/A',
             customerEmail: 'N/A',
-            customerAddress: 'Mua táº¡i cá»­a hÃ ng',
-            paymentMethod: document.getElementById('paymentMethod').value === 'transfer' ? 'Chuyá»ƒn khoáº£n' :
-                'Tiá»n máº·t',
+            customerAddress: 'Mua tại cửa hàng',
+            paymentMethod: document.getElementById('paymentMethod').value === 'transfer' ? 'Chuyển khoản' :
+                'Tiền mặt',
             date: new Date().toISOString(),
             items: [...cart],
             total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -680,10 +680,10 @@ if(!isset($admin_id)){
                 body: JSON.stringify(order)
             })
             .then(async (res) => {
-                const text = await res.text(); // nháº­n raw text
+                const text = await res.text(); // nhận raw text
                 let data;
                 try {
-                    data = JSON.parse(text); // thá»­ parse JSON
+                    data = JSON.parse(text); // thử parse JSON
                 } catch (e) {
                     console.error('Raw response (not JSON):', text);
                     throw new Error('NON_JSON_RESPONSE');
@@ -692,7 +692,7 @@ if(!isset($admin_id)){
                     console.error('Server error:', data);
                     throw new Error(data.error || 'SAVE_FAILED');
                 }
-                // thÃ nh cÃ´ng
+                // thành công
                 orders.push({
                     id: data.order_id,
                     ...order,
@@ -702,11 +702,11 @@ if(!isset($admin_id)){
                 cart = [];
                 updateCartDisplay();
                 loadPOSProducts();
-                showNotification('ÄÃ£ táº¡o Ä‘Æ¡n hÃ ng thÃ nh cÃ´ng!');
+                showNotification('Đã tạo đơn hàng thành công!');
             })
             .catch(err => {
                 console.error('Error saving order:', err);
-                showNotification('Lá»—i khi lÆ°u Ä‘Æ¡n hÃ ng!', 'error');
+                showNotification('Lỗi khi lưu đơn hàng!', 'error');
             });
     }
 
@@ -717,7 +717,7 @@ if(!isset($admin_id)){
         return str
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
-            .replace(/Ä‘/g, "d").replace(/Ä/g, "D");
+            .replace(/đ/g, "d").replace(/Đ/g, "D");
     }
 
     function formatCurrency(num) {
@@ -735,32 +735,32 @@ if(!isset($admin_id)){
         } = window.jspdf;
         const doc = new jsPDF();
 
-        // TiÃªu Ä‘á»
+        // Tiêu đề
         doc.setFontSize(20);
-        doc.text(removeVietnameseTones('HÃ“A ÄÆ N BÃN HÃ€NG'), 105, 20, {
+        doc.text(removeVietnameseTones('HÓA ĐƠN BÁN HÀNG'), 105, 20, {
             align: 'center'
         });
 
         doc.setFontSize(12);
-        doc.text(`MÃ£ ID: #${order.id}`, 20, 40);
-        doc.text(`NgÃ y: ${formatDate(order.date)}`, 20, 50);
-        doc.text(`KhÃ¡ch hÃ ng: ${removeVietnameseTones(order.customerName)}`, 20, 60);
+        doc.text(`Mã ID: #${order.id}`, 20, 40);
+        doc.text(`Ngày: ${formatDate(order.date)}`, 20, 50);
+        doc.text(`Khách hàng: ${removeVietnameseTones(order.customerName)}`, 20, 60);
 
-        // Header báº£ng
+        // Header bảng
         let yPos = 80;
         doc.setFontSize(12);
         doc.text("San pham", 20, yPos);
         doc.text("SL", 100, yPos, {
             align: 'right'
         });
-        doc.text("GiÃ¡", 140, yPos, {
+        doc.text("Giá", 140, yPos, {
             align: 'right'
         });
 
         yPos += 8;
 
         order.items.forEach(item => {
-            // DÃ²ng tÃªn sáº£n pháº©m + sá»‘ lÆ°á»£ng + giÃ¡ Ä‘Æ¡n vá»‹
+            // Dòng tên sản phẩm + số lượng + giá đơn vị
             doc.text(removeVietnameseTones(item.name), 20, yPos);
             doc.text(String(item.quantity), 100, yPos, {
                 align: 'right'
@@ -770,7 +770,7 @@ if(!isset($admin_id)){
             });
             yPos += 6;
 
-            // DÃ²ng tá»•ng tiá»n cho sáº£n pháº©m Ä‘Ã³
+            // Dòng tổng tiền cho sản phẩm đó
             doc.setFontSize(10);
             doc.text(`Tong: ${formatCurrency(item.quantity * item.price)}`, 140, yPos, {
                 align: 'right'
@@ -779,7 +779,7 @@ if(!isset($admin_id)){
             yPos += 8;
         });
 
-        // Tá»•ng cá»™ng cuá»‘i
+        // Tổng cộng cuối
 
         yPos += 5;
         doc.setFontSize(14);
@@ -792,7 +792,7 @@ if(!isset($admin_id)){
 
 
 
-    // HÃ m format tiá»n
+    // Hàm format tiền
     function formatCurrency(num) {
         return num.toLocaleString('en-US', {
             minimumFractionDigits: 0
@@ -824,4 +824,3 @@ if(!isset($admin_id)){
 </body>
 
 </html>
-

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include '../config.php';
 
@@ -68,7 +68,7 @@ if(!isset($admin_id)){
         color: var(--gray-text);
     }
 
-    /* Biá»ƒu Ä‘á»“ & báº£ng */
+    /* Biểu đồ & bảng */
     .dashboard-analytics {
         display: flex;
         flex-wrap: wrap;
@@ -153,14 +153,14 @@ if(!isset($admin_id)){
     <!-- admin dashboard section starts  -->
     <section class="dashboard">
 
-        <h1 class="title">Báº£ng Ä‘iá»u khiá»ƒn</h1>
+        <h1 class="title">Bảng điều khiển</h1>
 
         <div class="box-container">
 
             <div class="box">
                 <?php
                     $total_pendings = 0;
-                    $select_pending = mysqli_query($conn, "SELECT total_price FROM `orders` WHERE payment_status = 'Äang duyá»‡t'") or die('query failed');
+                    $select_pending = mysqli_query($conn, "SELECT total_price FROM `orders` WHERE payment_status = 'Đang duyệt'") or die('query failed');
                     if(mysqli_num_rows($select_pending) > 0){
                     while($fetch_pendings = mysqli_fetch_assoc($select_pending)){
                         $total_price = $fetch_pendings['total_price'];
@@ -168,14 +168,14 @@ if(!isset($admin_id)){
                     };
                     };
                 ?>
-                <h3><?php echo number_format($total_pendings, 0, ',', '.'); ?> VNÄ</h3>
-                <p>Tá»•ng tiá»n Ä‘ang xá»­ lÃ½</p>
+                <h3><?php echo number_format($total_pendings, 0, ',', '.'); ?> VNĐ</h3>
+                <p>Tổng tiền đang xử lý</p>
             </div>
 
             <div class="box">
                 <?php
                     $total_completed = 0;
-                    $select_completed = mysqli_query($conn, "SELECT total_price FROM `orders` WHERE payment_status = 'ThÃ nh cÃ´ng'") or die('query failed');
+                    $select_completed = mysqli_query($conn, "SELECT total_price FROM `orders` WHERE payment_status = 'Thành công'") or die('query failed');
                     if(mysqli_num_rows($select_completed) > 0){
                     while($fetch_completed = mysqli_fetch_assoc($select_completed)){
                         $total_price = $fetch_completed['total_price'];
@@ -183,8 +183,8 @@ if(!isset($admin_id)){
                     };
                     };
                 ?>
-                <h3><?php echo number_format($total_completed, 0, ',', '.'); ?> VNÄ</h3>
-                <p>Thanh toÃ¡n thÃ nh cÃ´ng</p>
+                <h3><?php echo number_format($total_completed, 0, ',', '.'); ?> VNĐ</h3>
+                <p>Thanh toán thành công</p>
             </div>
 
             <div class="box">
@@ -193,7 +193,7 @@ if(!isset($admin_id)){
                     $number_of_orders = mysqli_num_rows($select_orders);
                 ?>
                 <h3><?php echo $number_of_orders; ?></h3>
-                <p>Tá»•ng Ä‘Æ¡n hÃ ng</p>
+                <p>Tổng đơn hàng</p>
             </div>
 
             <div class="box">
@@ -202,7 +202,7 @@ if(!isset($admin_id)){
                     $number_of_products = mysqli_num_rows($select_products);
                 ?>
                 <h3><?php echo $number_of_products; ?></h3>
-                <p>Tá»•ng sáº£n pháº©m</p>
+                <p>Tổng sản phẩm</p>
             </div>
 
             <div class="box">
@@ -211,7 +211,7 @@ if(!isset($admin_id)){
                     $number_of_users = mysqli_num_rows($select_users);
                 ?>
                 <h3><?php echo $number_of_users; ?></h3>
-                <p>TÃ i khoáº£n User</p>
+                <p>Tài khoản User</p>
             </div>
 
             <div class="box">
@@ -220,7 +220,7 @@ if(!isset($admin_id)){
                     $number_of_admins = mysqli_num_rows($select_admins);
                 ?>
                 <h3><?php echo $number_of_admins; ?></h3>
-                <p>TÃ i khoáº£n Admin</p>
+                <p>Tài khoản Admin</p>
             </div>
 
             <div class="box">
@@ -229,7 +229,7 @@ if(!isset($admin_id)){
                     $number_of_account = mysqli_num_rows($select_account);
                 ?>
                 <h3><?php echo $number_of_account; ?></h3>
-                <p>Tá»•ng tÃ i khoáº£n</p>
+                <p>Tổng tài khoản</p>
             </div>
 
             <div class="box">
@@ -238,20 +238,20 @@ if(!isset($admin_id)){
                     $number_of_messages = mysqli_num_rows($select_messages);
                 ?>
                 <h3><?php echo $number_of_messages; ?></h3>
-                <p>ThÃ´ng bÃ¡o má»›i</p>
+                <p>Thông báo mới</p>
             </div>
 
         </div>
 
         <?php
-        // Thiáº¿t láº­p mÃºi giá» Viá»‡t Nam
+        // Thiết lập múi giờ Việt Nam
         date_default_timezone_set('Asia/Ho_Chi_Minh');
         
         $revenue_data = array();
         $day_labels = array();
 
-        // Láº¥y doanh thu theo ngÃ y - máº·c Ä‘á»‹nh 7 ngÃ y gáº§n nháº¥t (bao gá»“m hÃ´m nay)
-        $days = 7; // báº¡n cÃ³ thá»ƒ thay Ä‘á»•i thÃ nh 30 Ä‘á»ƒ hiá»ƒn thá»‹ 30 ngÃ y
+        // Lấy doanh thu theo ngày - mặc định 7 ngày gần nhất (bao gồm hôm nay)
+        $days = 7; // bạn có thể thay đổi thành 30 để hiển thị 30 ngày
         $today = date('Y-m-d');
 
         // Build dates from oldest -> newest
@@ -264,7 +264,7 @@ if(!isset($admin_id)){
         foreach ($dates as $idx => $d) {
             $query = "SELECT SUM(total_price) as revenue FROM `orders` 
                      WHERE DATE(placed_on) = '$d'
-                     AND payment_status = 'ThÃ nh cÃ´ng'";
+                     AND payment_status = 'Thành công'";
             $result = mysqli_query($conn, $query);
             $row = mysqli_fetch_assoc($result);
             $revenue = $row['revenue'] ? (int)$row['revenue'] : 0;
@@ -278,41 +278,41 @@ if(!isset($admin_id)){
             }
         }
 
-        // Chuyá»ƒn máº£ng PHP thÃ nh JSON cho JavaScript
+        // Chuyển mảng PHP thành JSON cho JavaScript
         $revenue_json = json_encode($revenue_data);
         $labels_json = json_encode($day_labels);
 
-        // Láº¥y thÃ´ng tin thá»i gian hiá»‡n táº¡i
+        // Lấy thông tin thời gian hiện tại
         $current_time = date('H:i:s');
         $current_date = date('d/m/Y');
         $day_of_week = date('l');
         $day_of_week_vn = array(
-            'Monday' => 'Thá»© Hai',
-            'Tuesday' => 'Thá»© Ba', 
-            'Wednesday' => 'Thá»© TÆ°',
-            'Thursday' => 'Thá»© NÄƒm',
-            'Friday' => 'Thá»© SÃ¡u',
-            'Saturday' => 'Thá»© Báº£y',
-            'Sunday' => 'Chá»§ Nháº­t'
+            'Monday' => 'Thứ Hai',
+            'Tuesday' => 'Thứ Ba', 
+            'Wednesday' => 'Thứ Tư',
+            'Thursday' => 'Thứ Năm',
+            'Friday' => 'Thứ Sáu',
+            'Saturday' => 'Thứ Bảy',
+            'Sunday' => 'Chủ Nhật'
         );
         ?>
 
         <div class="dashboard-analytics">
             <div class="chart-area">
-                <h2>Biá»ƒu Ä‘á»“ Doanh Thu</h2>
+                <h2>Biểu đồ Doanh Thu</h2>
                 <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                    ðŸ“… <?php echo $day_of_week_vn[$day_of_week] . ', ' . $current_date; ?> |
-                    ðŸ• Giá» hiá»‡n táº¡i: <?php echo $current_time; ?> (GMT+7)
+                    📅 <?php echo $day_of_week_vn[$day_of_week] . ', ' . $current_date; ?> |
+                    🕐 Giờ hiện tại: <?php echo $current_time; ?> (GMT+7)
                 </p>
                 <canvas id="revenueChart"></canvas>
             </div>
 
             <div class="best-sellers">
-                <h2>Sáº£n pháº©m bÃ¡n cháº¡y (Top 5)</h2>
+                <h2>Sản phẩm bán chạy (Top 5)</h2>
                 <ul class="product-list">
                     <?php
-                    // Láº¥y táº¥t cáº£ Ä‘Æ¡n hÃ ng thÃ nh cÃ´ng vÃ  xá»­ lÃ½ báº±ng PHP
-                    $orders_query = "SELECT total_products FROM `orders` WHERE payment_status = 'ThÃ nh cÃ´ng'";
+                    // Lấy tất cả đơn hàng thành công và xử lý bằng PHP
+                    $orders_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công'";
                     $orders_result = mysqli_query($conn, $orders_query);
                     
                     $product_counts = array();
@@ -321,7 +321,7 @@ if(!isset($admin_id)){
                         while($order = mysqli_fetch_assoc($orders_result)) {
                             $total_products = $order['total_products'];
                             
-                            // TÃ¡ch cÃ¡c sáº£n pháº©m báº±ng dáº¥u pháº©y
+                            // Tách các sản phẩm bằng dấu phẩy
                             $products = explode(',', $total_products);
                             
                             foreach($products as $product) {
@@ -330,7 +330,7 @@ if(!isset($admin_id)){
                                 // Skip empty strings
                                 if(empty($product)) continue;
                                 
-                                // Extract product name vÃ  quantity tá»« format: "Product Name (quantity)"
+                                // Extract product name và quantity từ format: "Product Name (quantity)"
                                 if(preg_match('/(.+?)\s*\((\d+)\)/', $product, $matches)) {
                                     $product_name = trim($matches[1]);
                                     $quantity = (int)$matches[2];
@@ -347,7 +347,7 @@ if(!isset($admin_id)){
                         }
                     }
                     
-                    // Sort by quantity descending vÃ  láº¥y top 5
+                    // Sort by quantity descending và lấy top 5
                     arsort($product_counts);
                     $top_products = array_slice($product_counts, 0, 5, true);
                     
@@ -356,19 +356,19 @@ if(!isset($admin_id)){
                         foreach($top_products as $product_name => $total_quantity) {
                             echo '<li>';
                             echo '<span>' . $rank . '. ' . htmlspecialchars($product_name) . '</span>';
-                            echo '<span>' . $total_quantity . ' cÃ¡i</span>';
+                            echo '<span>' . $total_quantity . ' cái</span>';
                             echo '</li>';
                             $rank++;
                         }
                     } else {
-                        echo '<li><span>ChÆ°a cÃ³ dá»¯ liá»‡u bÃ¡n hÃ ng</span><span>0 cÃ¡i</span></li>';
+                        echo '<li><span>Chưa có dữ liệu bán hàng</span><span>0 cái</span></li>';
                     }
                     ?>
                 </ul>
-                <!-- Biá»ƒu Ä‘á»“: Sáº£n pháº©m má»›i Ä‘áº·t (7 ngÃ y gáº§n nháº¥t) -->
+                <!-- Biểu đồ: Sản phẩm mới đặt (7 ngày gần nhất) -->
                 <?php
-                // TÃ­nh sáº£n pháº©m Ä‘Æ°á»£c Ä‘áº·t trong 7 ngÃ y gáº§n nháº¥t (Ä‘áº·t trÆ°á»›c khi render list)
-                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'ThÃ nh cÃ´ng' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                // Tính sản phẩm được đặt trong 7 ngày gần nhất (đặt trước khi render list)
+                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
                 $recent_result = mysqli_query($conn, $recent_query);
                 $recent_counts = array();
                 if($recent_result && mysqli_num_rows($recent_result) > 0) {
@@ -387,12 +387,12 @@ if(!isset($admin_id)){
                         }
                     }
                 }
-                // Láº¥y top 5 recent
+                // Lấy top 5 recent
                 arsort($recent_counts);
                 $recent_top = array_slice($recent_counts, 0, 5, true);
                 ?>
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                    <h2 style="margin-top:1.5rem">Sáº£n pháº©m má»›i Ä‘áº·t (7 ngÃ y)</h2>
+                    <h2 style="margin-top:1.5rem">Sản phẩm mới đặt (7 ngày)</h2>
                     <button id="refresh-recent" class="option-btn" style="margin-top:1.5rem; padding:6px 12px; font-size:14px">Refresh</button>
                 </div>
                 <div id="recent-products-container" style="margin-top:0.5rem">
@@ -402,18 +402,18 @@ if(!isset($admin_id)){
                         $i = 1;
                         foreach ($recent_top as $name => $qty) {
                             if ($i > 5) break;
-                            echo '<li><span>' . $i . '. ' . htmlspecialchars($name) . '</span><span>' . $qty . ' cÃ¡i</span></li>';
+                            echo '<li><span>' . $i . '. ' . htmlspecialchars($name) . '</span><span>' . $qty . ' cái</span></li>';
                             $i++;
                         }
                         echo '</ul>';
                     } else {
-                        echo '<ul class="product-list"><li><span>ChÆ°a cÃ³ Ä‘Æ¡n hÃ ng trong 7 ngÃ y</span><span>0 cÃ¡i</span></li></ul>';
+                        echo '<ul class="product-list"><li><span>Chưa có đơn hàng trong 7 ngày</span><span>0 cái</span></li></ul>';
                     }
                     ?>
                 </div>
                 <?php
-                // TÃ­nh sáº£n pháº©m Ä‘Æ°á»£c Ä‘áº·t trong 7 ngÃ y gáº§n nháº¥t
-                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'ThÃ nh cÃ´ng' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                // Tính sản phẩm được đặt trong 7 ngày gần nhất
+                $recent_query = "SELECT total_products FROM `orders` WHERE payment_status = 'Thành công' AND placed_on >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
                 $recent_result = mysqli_query($conn, $recent_query);
                 $recent_counts = array();
                 if(mysqli_num_rows($recent_result) > 0) {
@@ -432,14 +432,14 @@ if(!isset($admin_id)){
                         }
                     }
                 }
-                // Láº¥y top 5 recent
+                // Lấy top 5 recent
                 arsort($recent_counts);
                 $recent_top = array_slice($recent_counts, 0, 5, true);
                 $recent_labels = array_keys($recent_top);
                 $recent_values = array_values($recent_top);
                 $recent_labels_json = json_encode($recent_labels);
                 $recent_values_json = json_encode($recent_values);
-                // Debug: in ra máº£ng recent_top khi truy cáº­p vá»›i ?debug_recent=1
+                // Debug: in ra mảng recent_top khi truy cập với ?debug_recent=1
                 if (isset($_GET['debug_recent']) && $_GET['debug_recent'] == '1') {
                     echo '<pre style="font-size:12px; background:#fff; padding:10px; border:1px solid #eee; margin-top:10px;">DEBUG recent_top:\n' . htmlspecialchars(print_r($recent_top, true)) . '</pre>';
                 }
@@ -452,20 +452,20 @@ if(!isset($admin_id)){
     <!-- admin dashboard section ends -->
 
     <!-- custom admin js file link  -->
-    <script src="../js/admin_script.js"></script>
+    <script src="js/admin_script.js"></script>
 
 
 
-    <!-- code cáº£i tiáº¿n vá»›i mÃºi giá» Viá»‡t Nam -->
+    <!-- code cải tiến với múi giờ Việt Nam -->
     <script>
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 
-    // Sá»­ dá»¥ng dá»¯ liá»‡u thá»±c tá»« PHP (theo ngÃ y)
+    // Sử dụng dữ liệu thực từ PHP (theo ngày)
     const revenueData = <?php echo $revenue_json; ?>;
     const dayLabels = <?php echo $labels_json; ?>;
     const currentDayIndex = <?php echo json_encode($current_day_index !== null ? $current_day_index : -1); ?>;
 
-    // Táº¡o mÃ u cho cÃ¡c Ä‘iá»ƒm - lÃ m ná»•i báº­t ngÃ y hiá»‡n táº¡i
+    // Tạo màu cho các điểm - làm nổi bật ngày hiện tại
     const pointColors = dayLabels.map((label, index) => {
         return index === currentDayIndex ? '#ff6b6b' : '#3b82f6';
     });
@@ -479,7 +479,7 @@ if(!isset($admin_id)){
         data: {
             labels: dayLabels,
             datasets: [{
-                label: 'Doanh thu theo ngÃ y (VNÄ)',
+                label: 'Doanh thu theo ngày (VNĐ)',
                 data: revenueData,
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59, 130, 246, 0.2)',
@@ -515,11 +515,11 @@ if(!isset($admin_id)){
                         title: function(context) {
                             const day = context[0].label;
                             const isCurrent = context[0].dataIndex === currentDayIndex;
-                            return day + (isCurrent ? ' (HÃ´m nay)' : '');
+                            return day + (isCurrent ? ' (Hôm nay)' : '');
                         },
                         label: function(context) {
                             const value = new Intl.NumberFormat('vi-VN').format(context.parsed.y);
-                            return 'Doanh thu: ' + value + ' VNÄ';
+                            return 'Doanh thu: ' + value + ' VNĐ';
                         }
                     }
                 }
@@ -570,13 +570,13 @@ if(!isset($admin_id)){
         }
     });
 
-    // ThÃªm auto-refresh má»—i 5 phÃºt
+    // Thêm auto-refresh mỗi 5 phút
     setTimeout(function() {
         location.reload();
-    }, 300000); // 5 phÃºt = 300000ms
+    }, 300000); // 5 phút = 300000ms
     </script>
     <script>
-    // AJAX loader cho pháº§n Sáº£n pháº©m má»›i Ä‘áº·t
+    // AJAX loader cho phần Sản phẩm mới đặt
     (function(){
         const container = document.getElementById('recent-products-container');
         const btn = document.getElementById('refresh-recent');
@@ -597,4 +597,3 @@ if(!isset($admin_id)){
 </body>
 
 </html>
-

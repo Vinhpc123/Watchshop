@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include '../config.php';
 
@@ -124,17 +124,17 @@ if (isset($_GET['delete'])) {
 <body>
     <?php include 'header.php'; ?>
     <section class="messages">
-        <h1 class="title"> Tin nháº¯n </h1>
+        <h1 class="title"> Tin nhắn </h1>
         <div class="table-container">
             <table class="messages-table">
                 <thead>
                     <tr>
                         <th>User ID</th>
-                        <th>TÃªn</th>
-                        <th>SÄT</th>
+                        <th>Tên</th>
+                        <th>SĐT</th>
                         <th>Email</th>
-                        <th>Tin nháº¯n</th>
-                        <th>HÃ nh Ä‘á»™ng</th>
+                        <th>Tin nhắn</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -151,13 +151,13 @@ if (isset($_GET['delete'])) {
                         <td><?php echo $fetch_message['message']; ?></td>
                         <td>
                             <a href="contacts.php?delete=<?php echo $fetch_message['id']; ?>"
-                                onclick="return confirm('Báº¡n cÃ³ muá»‘n xÃ³a tin nháº¯n nÃ y?');" class="delete-btn1">XÃ³a</a>
+                                onclick="return confirm('Bạn có muốn xóa tin nhắn này?');" class="delete-btn1">Xóa</a>
                         </td>
                     </tr>
                     <?php
                      }
                   } else {
-                     echo '<tr><td colspan="6" style="text-align:center; padding: 15px;">KhÃ´ng cÃ³ tin nháº¯n nÃ o!</td></tr>';
+                     echo '<tr><td colspan="6" style="text-align:center; padding: 15px;">Không có tin nhắn nào!</td></tr>';
                   }
                   ?>
                 </tbody>
@@ -170,4 +170,3 @@ if (isset($_GET['delete'])) {
 </body>
 
 </html>
-
